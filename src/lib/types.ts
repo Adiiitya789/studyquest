@@ -57,6 +57,22 @@ export interface LeaderboardEntry {
   total_hours: number;
 }
 
+export interface AdminUserRow {
+  user_id: string;
+  username: string;
+  display_name: string;
+  email: string;
+  main_subject: string;
+  coins: number;
+  total_minutes: number;
+  total_hours: number;
+  tasks_done: number;
+  perks_count: number;
+  is_admin: boolean;
+  show_on_leaderboard: boolean;
+  created_at: string;
+}
+
 export interface PublicProfile {
   user_id: string;
   username: string;

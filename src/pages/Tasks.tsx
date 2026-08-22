@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { coinsForTask } from '@/lib/constants';
 import type { Task } from '@/lib/types';
-import { Plus, Check, Trash2, ListTodo, Coins } from 'lucide-react';
+import { Plus, Check, Trash2, ListTodo } from 'lucide-react';
 
 export default function Tasks() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,20 +41,20 @@ async function toggleTask(task: Task) {
     if (!user || !profile) return;
 
     if (!task.done) {
-      // Marking complete: the database awards the coins (see complete_task in
-      // the migrations) so completing/un-completing repeatedly can't be used
-      // to farm coins, and the reward always matches coinsForTask() server-side.
-      const { error } = await supabase.rpc('complete_task', { p_task_id: task.id });
-      if (error) {
-        console.error('Failed to complete task:', error.message);
+      // Completing a task no longer awards coins — just toggles done.
+      const { error: taskError } = await supabase
+        .from('tasks')
+        .update({ done: true })
+        .eq('id', task.id);
+      if (taskError) {
+        console.error('Failed to complete task:', taskError.message);
         return;
       }
       setTasks(tasks.map((t) => (t.id === task.id ? { ...t, done: true } : t)));
-      await refreshProfile();
       return;
     }
 
-    // Un-completing doesn't touch coins, so a plain update is fine here.
+    // Un-completing: plain toggle back, same as before.
     const { data } = await supabase
       .from('tasks')
       .update({ done: false })
@@ -128,9 +127,6 @@ async function toggleTask(task: Task) {
                   className="w-6 h-6 rounded-full border-2 border-coffee-600 hover:border-primary-400 transition-all flex items-center justify-center shrink-0"
                 />
                 <span className="flex-1 text-sm text-white">{task.title}</span>
-                <span className="flex items-center gap-1 text-xs font-semibold text-amber-400 shrink-0">
-                  <Coins size={12} /> +{coinsForTask()}
-                </span>
                 <button
                   onClick={() => deleteTask(task)}
                   className="text-coffee-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
