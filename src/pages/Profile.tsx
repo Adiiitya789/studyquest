@@ -62,17 +62,32 @@ export default function Profile() {
   async function buyPerk(perkId: string, cost: number) {
     if (!user || !profile || profile.coins < cost) return;
     setBuying(perkId);
-    // The database re-checks the price and the balance atomically (see buy_perk
-    // in the migrations) — it never trusts a client-supplied cost, and the
-    // insert+deduct happen as one transaction so a race between two purchases
-    // can't leave coins deducted without the perk (or vice versa).
-    const { error } = await supabase.rpc('buy_perk', { p_perk_id: perkId });
-    if (!error) {
-      setPerks([...perks, perkId]);
-      await refreshProfile();
-    } else {
-      console.error('Failed to buy perk:', error.message);
+    // Writes directly to perks / profiles.coins (RLS already scopes both to
+    // the signed-in user's own rows). This previously called a buy_perk RPC
+    // for atomic server-side re-checking, but that function was never
+    // actually created in the database, so purchases were silently failing
+    // every time — same issue the coin-earning flow had with
+    // log_study_session. This direct-write approach is what's confirmed
+    // working.
+    const newCoins = profile.coins - cost;
+    const { error: perkError } = await supabase.from('perks').insert({
+      user_id: user.id,
+      perk_id: perkId,
+    });
+    if (perkError) {
+      console.error('Failed to buy perk:', perkError.message);
+      setBuying(null);
+      return;
     }
+    const { error: coinError } = await supabase
+      .from('profiles')
+      .update({ coins: newCoins })
+      .eq('id', user.id);
+    if (coinError) {
+      console.error('Failed to deduct coins for perk:', coinError.message);
+    }
+    setPerks([...perks, perkId]);
+    await refreshProfile();
     setBuying(null);
   }
 
