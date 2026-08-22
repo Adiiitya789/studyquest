@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-coffee-950 text-coffee-100 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-coffee-900/60 backdrop-blur-xl border border-white/5;
+  }
+  .glass-card {
+    @apply bg-coffee-900/40 backdrop-blur-md border border-white/5 rounded-2xl;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-primary-300 via-primary-400 to-accent-500;
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  .animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(193, 127, 53, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(193, 127, 53, 0.6); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-coffee-700 rounded-full; }
+
+
+
+/* --- CUSTOM IMAGE CURSOR (FORCED EVERYWHERE) --- */
+
+/* 1. Apply to literally everything on the page, including inputs and dropdowns */
+* {
+  cursor: url('/tinygreycursor.png') 0 0, auto !important;
+}
+
+/* 2. Keep the button/link hover state if you want it (Optional) */
+button, button *, a, a *, [role="button"], [role="button"] * {
+  cursor: url('/tinygreycursor.png') 0 0, pointer !important;
+}
