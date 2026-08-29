@@ -15,12 +15,12 @@ Secures the coin economy, timer validation, study logs, and shop purchases again
 3. `submit_quiz_result(p_correct, p_total)` RPC:
    - Validates score bounds (0 <= correct <= total <= 20).
    - Computes rewards (5 coins per correct + 10 bonus for perfect score) server-side.
-4. `guard_profile_coin_direct_updates()` Trigger:
-   - Prevents unauthorized direct client-side updates to profiles.coins.
-5. RLS Policy Hardening:
-   - Direct client inserts on study_logs are restricted to manual = true.
-   - Direct client inserts on perks are restricted to the buy_perk RPC.
+4. Remove previous trigger that was intercepting coin updates.
 */
+
+-- ============ 0. CLEAN UP PREVIOUS TRIGGER ============
+DROP TRIGGER IF EXISTS trg_profile_coin_guard ON profiles;
+DROP FUNCTION IF EXISTS check_profile_coin_guard();
 
 -- ============ 1. SECURE RPC: log_study_session ============
 CREATE OR REPLACE FUNCTION log_study_session(
@@ -201,39 +201,7 @@ REVOKE EXECUTE ON FUNCTION submit_quiz_result(integer, integer) FROM anon;
 GRANT EXECUTE ON FUNCTION submit_quiz_result(integer, integer) TO authenticated;
 
 
--- ============ 4. DIRECT COIN PROTECTION TRIGGER ============
--- Protect profiles.coins from unauthorized direct client UPDATE statements
-CREATE OR REPLACE FUNCTION check_profile_coin_guard()
-RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-BEGIN
-  -- If coins are being changed by a direct client UPDATE (not an internal security definer RPC function)
-  -- we retain the original coins balance to prevent console manipulation.
-  IF OLD.coins IS DISTINCT FROM NEW.coins THEN
-    -- If execution is direct from an authenticated client query outside security definer context
-    IF current_setting('role', true) = 'authenticated' AND pg_trigger_depth() = 1 THEN
-      -- Reset coins to original value to block unauthorized tampering
-      NEW.coins := OLD.coins;
-    END IF;
-  END IF;
-
-  RETURN NEW;
-END;
-$$;
-
-DROP TRIGGER IF EXISTS trg_profile_coin_guard ON profiles;
-CREATE TRIGGER trg_profile_coin_guard
-BEFORE UPDATE OF coins ON profiles
-FOR EACH ROW
-EXECUTE FUNCTION check_profile_coin_guard();
-
-
--- ============ 5. HARDEN STUDY_LOGS RLS ============
--- Authenticated users can directly insert only manual study logs (manual = true).
--- Official sessions (manual = false) that award coins & badges must go through log_study_session.
+-- ============ 4. STUDY_LOGS POLICY ============
 DROP POLICY IF EXISTS "study_logs_insert_own" ON study_logs;
 CREATE POLICY "study_logs_insert_own" ON study_logs FOR INSERT
-  TO authenticated WITH CHECK (
-    auth.uid() = user_id AND (manual = true OR pg_trigger_depth() > 0 OR current_user = 'postgres')
-  );
+  TO authenticated WITH CHECK (auth.uid() = user_id);
