@@ -19,15 +19,15 @@ export const BADGES: BadgeDef[] = [
 ];
 
 export const SUBJECTS = [
-  'Mathematics',
-  'Science',
-  'Computer Science',
   'Art',
   'Business',
-  'Psychology',
+  'Computer Science',
   'Engineering',
-  'Medicine',
   'General',
+  'Mathematics',
+  'Medicine',
+  'Psychology',
+  'Science',
 ];
 
 export function coinsForMinutes(minutes: number): number {

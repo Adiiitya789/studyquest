@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -25,6 +25,18 @@ export default function Dashboard() {
   const [manualMinutes, setManualMinutes] = useState('');
   const [manualSubject, setManualSubject] = useState(profile?.main_subject ?? SUBJECTS[0]);
   const [isManualCustom, setIsManualCustom] = useState(false);
+
+  // Alphabetically sorted subject list with custom subjects included
+  const availableSubjects = useMemo(() => {
+    const set = new Set<string>(SUBJECTS);
+    if (profile?.main_subject) set.add(profile.main_subject.trim());
+    if (selectedSubject && selectedSubject.trim()) set.add(selectedSubject.trim());
+    if (manualSubject && manualSubject.trim()) set.add(manualSubject.trim());
+    (logs ?? []).forEach((l) => {
+      if (l.subject && l.subject.trim()) set.add(l.subject.trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [profile?.main_subject, selectedSubject, manualSubject, logs]);
 
   // 2. Added a robust time-checker that updates automatically
   useEffect(() => {
@@ -165,23 +177,20 @@ export default function Dashboard() {
             </div>
           ) : (
             <select
-              value={SUBJECTS.includes(selectedSubject) ? selectedSubject : (selectedSubject ? 'CUSTOM_ADDED' : SUBJECTS[0])}
+              value={selectedSubject}
               onChange={(e) => {
                 if (e.target.value === 'CUSTOM_NEW') {
                   setSelectedSubject('');
                   setIsCustomSubject(true);
-                } else if (e.target.value !== 'CUSTOM_ADDED') {
+                } else {
                   setSelectedSubject(e.target.value);
                 }
               }}
               className="w-full mb-4 px-4 py-3 rounded-xl bg-coffee-800/60 border border-white/5 text-white focus:outline-none focus:border-primary-500/50 transition-all"
             >
-              {SUBJECTS.map((s) => (
+              {availableSubjects.map((s) => (
                 <option key={s} value={s} className="bg-coffee-800">{s}</option>
               ))}
-              {!SUBJECTS.includes(selectedSubject) && selectedSubject && (
-                <option value="CUSTOM_ADDED" className="bg-coffee-800">{selectedSubject}</option>
-              )}
               <option value="CUSTOM_NEW" className="bg-coffee-800 font-bold text-primary-400">➕ Create new subject...</option>
             </select>
           )}
@@ -304,23 +313,20 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <select
-                    value={SUBJECTS.includes(manualSubject) ? manualSubject : (manualSubject ? 'CUSTOM_ADDED' : SUBJECTS[0])}
+                    value={manualSubject}
                     onChange={(e) => {
                       if (e.target.value === 'CUSTOM_NEW') {
                         setManualSubject('');
                         setIsManualCustom(true);
-                      } else if (e.target.value !== 'CUSTOM_ADDED') {
+                      } else {
                         setManualSubject(e.target.value);
                       }
                     }}
                     className="w-full px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white focus:outline-none focus:border-primary-500/50 transition-all"
                   >
-                    {SUBJECTS.map((s) => (
+                    {availableSubjects.map((s) => (
                       <option key={s} value={s} className="bg-coffee-800">{s}</option>
                     ))}
-                    {!SUBJECTS.includes(manualSubject) && manualSubject && (
-                      <option value="CUSTOM_ADDED" className="bg-coffee-800">{manualSubject}</option>
-                    )}
                     <option value="CUSTOM_NEW" className="bg-coffee-800 font-bold text-primary-400">➕ Create new subject...</option>
                   </select>
                 )}
