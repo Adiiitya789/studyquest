@@ -9,10 +9,13 @@ import { BarChart3, Clock, Flame, CheckCircle2, Lock } from 'lucide-react';
 
 const PIE_COLORS = ['#2dd4bf', '#3b82f6', '#a78bfa', '#f59e0b', '#ef4444', '#10b981', '#ec4899', '#6366f1', '#f97316', '#06b6d4', '#84cc16', '#e11d48', '#8b5cf6'];
 
+type TimeframeMode = 'week' | 'month' | 'lifetime';
+
 export default function Stats() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<StudyLog[]>([]);
   const [streak, setStreak] = useState(0);
+  const [timeframe, setTimeframe] = useState<TimeframeMode>('week');
 
   useEffect(() => {
     if (!user) return;
@@ -54,23 +57,76 @@ export default function Stats() {
     return Object.entries(map).map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }));
   }, [logs]);
 
-  const weeklyData = useMemo(() => {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const weekMap: Record<string, number> = {};
-    days.forEach((d) => (weekMap[d] = 0));
+  // Chart Data based on selected timeframe
+  const chartData = useMemo(() => {
     const now = new Date();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    startOfWeek.setHours(0, 0, 0, 0);
+
+    if (timeframe === 'week') {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const weekMap: Record<string, number> = {};
+      days.forEach((d) => (weekMap[d] = 0));
+
+      const startOfWeek = new Date(now);
+      startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        if (d >= startOfWeek) {
+          const dayIdx = (d.getDay() + 6) % 7;
+          weekMap[days[dayIdx]] += l.minutes / 60;
+        }
+      });
+      return days.map((d) => ({ name: d, hours: Math.round(weekMap[d] * 100) / 100 }));
+    }
+
+    if (timeframe === 'month') {
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+      const endOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      const buckets = [
+        { name: '1-7', start: 1, end: 7, hours: 0 },
+        { name: '8-14', start: 8, end: 14, hours: 0 },
+        { name: '15-21', start: 15, end: 21, hours: 0 },
+        { name: '22-28', start: 22, end: 28, hours: 0 },
+        { name: '29+', start: 29, end: endOfMonth, hours: 0 },
+      ];
+
+      logs.forEach((l) => {
+        const d = new Date(l.created_at);
+        if (d.getFullYear() === currentYear && d.getMonth() === currentMonth) {
+          const day = d.getDate();
+          const bucket = buckets.find((b) => day >= b.start && day <= b.end);
+          if (bucket) {
+            bucket.hours += l.minutes / 60;
+          }
+        }
+      });
+
+      return buckets.map((b) => ({
+        name: `Day ${b.name}`,
+        hours: Math.round(b.hours * 100) / 100,
+      }));
+    }
+
+    // Lifetime: All 12 calendar months
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthMap: Record<string, number> = {};
+    months.forEach((m) => (monthMap[m] = 0));
+
     logs.forEach((l) => {
       const d = new Date(l.created_at);
-      if (d >= startOfWeek) {
-        const dayIdx = (d.getDay() + 6) % 7;
-        weekMap[days[dayIdx]] += l.minutes / 60;
-      }
+      const mIdx = d.getMonth();
+      monthMap[months[mIdx]] += l.minutes / 60;
     });
-    return days.map((d) => ({ name: d, hours: Math.round(weekMap[d] * 100) / 100 }));
-  }, [logs]);
+
+    return months.map((m) => ({ name: m, hours: Math.round(monthMap[m] * 100) / 100 }));
+  }, [logs, timeframe]);
+
+  const timeframeTotalHours = useMemo(() => {
+    return chartData.reduce((sum, item) => sum + item.hours, 0);
+  }, [chartData]);
 
   return (
     <div className="animate-fade-in">
@@ -103,7 +159,75 @@ export default function Stats() {
         </div>
       </div>
 
-      {/* Pie chart */}
+      {/* Progress Bar Chart with Timeframe Switcher */}
+      <div className="glass-card p-5 mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <p className="text-sm font-semibold text-white">
+              {timeframe === 'week' ? 'Weekly Progress' : timeframe === 'month' ? 'Monthly Progress' : 'Lifetime Progress'}
+            </p>
+            <p className="text-xs text-coffee-400 mt-0.5">
+              {timeframeTotalHours.toFixed(2)}h logged {timeframe === 'week' ? 'this week' : timeframe === 'month' ? 'this month' : 'all-time'}
+            </p>
+          </div>
+
+          {/* Timeframe Toggle Buttons */}
+          <div className="flex items-center bg-coffee-950/70 p-1 rounded-xl border border-white/5 self-start sm:self-auto">
+            <button
+              onClick={() => setTimeframe('week')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                timeframe === 'week'
+                  ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
+                  : 'text-coffee-400 hover:text-white'
+              }`}
+            >
+              Weekly
+            </button>
+            <button
+              onClick={() => setTimeframe('month')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                timeframe === 'month'
+                  ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
+                  : 'text-coffee-400 hover:text-white'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setTimeframe('lifetime')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                timeframe === 'lifetime'
+                  ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
+                  : 'text-coffee-400 hover:text-white'
+              }`}
+            >
+              Lifetime
+            </button>
+          </div>
+        </div>
+
+        <ResponsiveContainer width="100%" height={210}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+            <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+            <Tooltip
+              contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+              formatter={(v) => [`${v}h`, 'Hours']}
+              cursor={{ fill: 'rgba(45, 212, 191, 0.05)' }}
+            />
+            <Bar dataKey="hours" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
+            <defs>
+              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2dd4bf" />
+                <stop offset="100%" stopColor="#3b82f6" />
+              </linearGradient>
+            </defs>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Pie chart: Hours by Subject */}
       <div className="glass-card p-5 mb-5">
         <p className="text-sm font-semibold text-white mb-4">Hours by Subject</p>
         {subjectData.length === 0 ? (
@@ -142,30 +266,6 @@ export default function Stats() {
             ))}
           </div>
         )}
-      </div>
-
-      {/* Bar chart */}
-      <div className="glass-card p-5 mb-5">
-        <p className="text-sm font-semibold text-white mb-4">Weekly Progress</p>
-        <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: '#64748b', fontSize: 12 }} axisLine={false} tickLine={false} />
-            <Tooltip
-              contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
-              formatter={(v) => [`${v}h`, 'Hours']}
-              cursor={{ fill: 'rgba(45, 212, 191, 0.05)' }}
-            />
-            <Bar dataKey="hours" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
-            <defs>
-              <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2dd4bf" />
-                <stop offset="100%" stopColor="#3b82f6" />
-              </linearGradient>
-            </defs>
-          </BarChart>
-        </ResponsiveContainer>
       </div>
 
       {/* Badges */}
