@@ -43,8 +43,7 @@ export default function Login() {
       } else {
         if (password.length < 6) throw new Error('Password must be at least 6 characters');
         await signUp(email, password, displayName, mainSubject);
-        // NEW: Show this message upon successful signup
-        setMessage('Success! Please check your inbox to confirm your email.');
+        setMessage('Account created! Please check your inbox (and spam/junk folder) to confirm your email.');
       }
     } catch (err: any) {
       console.error("Full signup error:", err); 
@@ -184,10 +183,13 @@ export default function Login() {
               </div>
             )}
 
-            {/* NEW: Success Message Box */}
+            {/* Success Message Box with Spam Warning */}
             {message && (
-              <div className="px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-sm animate-fade-in font-medium text-center">
-                {message}
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm animate-fade-in text-center space-y-1.5">
+                <p className="text-emerald-300 font-semibold">{message}</p>
+                <p className="text-xs text-coffee-300">
+                  ⚠️ Don't see it? Be sure to check your <span className="text-white font-medium underline">Spam / Junk</span> folder!
+                </p>
               </div>
             )}
 
