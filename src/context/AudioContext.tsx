@@ -17,12 +17,13 @@ export interface AmbientTrack {
   label: string;
   icon: LucideIcon;
   src: string;
+  defaultVolume: number;
 }
 
 export const LOCAL_TRACKS: AmbientTrack[] = [
-  { id: 'lofi', label: 'Lofi Beats', icon: Music, src: '/lofi.mp3' },
-  { id: 'rain', label: 'Rain', icon: CloudRain, src: '/rain.mp3' },
-  { id: 'sunset', label: 'Sunset', icon: SunsetIcon, src: '/sunset.mp3' },
+  { id: 'lofi', label: 'Lofi Beats', icon: Music, src: '/lofi.mp3', defaultVolume: 0.5 },
+  { id: 'rain', label: 'Gentle Rain', icon: CloudRain, src: '/rain.mp3', defaultVolume: 0.6 },
+  { id: 'sunset', label: 'Sunset Chill', icon: SunsetIcon, src: '/sunset.mp3', defaultVolume: 0.5 },
 ];
 
 export const SPOTIFY_PRESETS = [
@@ -154,9 +155,7 @@ export function parseYouTubeUrl(input: string): { type: 'playlist' | 'video'; id
         }
       }
     }
-  } catch {
-    // Fallback regex
-  }
+  } catch {}
 
   const listMatch = trimmed.match(/[?&]list=([a-zA-Z0-9_-]+)/);
   if (listMatch) {
@@ -179,28 +178,45 @@ export function parseYouTubeUrl(input: string): { type: 'playlist' | 'video'; id
   return null;
 }
 
+export interface TrackLayerState {
+  playing: boolean;
+  volume: number; // 0.0 to 1.0
+}
+
 const STORAGE_PLAYLISTS_KEY = 'studyquest_custom_playlists';
 const STORAGE_ACTIVE_MODE_KEY = 'studyquest_player_mode';
+const STORAGE_AMBIENT_STATE_KEY = 'studyquest_ambient_mixer_state';
 
 interface AudioContextValue {
   mode: PlayerMode;
   setMode: (mode: PlayerMode) => void;
-  activeAmbientTrack: string | null;
-  setActiveAmbientTrack: (track: string | null) => void;
-  handleSelectAmbient: (trackId: string) => void;
-  volume: number;
-  setVolume: (v: number) => void;
+
+  // Multi-Track Ambient Mixer State
+  ambientTracksState: Record<string, TrackLayerState>;
+  toggleAmbientTrack: (trackId: string) => void;
+  setTrackVolume: (trackId: string, volume: number) => void;
+  stopAllAmbient: () => void;
+  masterAmbientVolume: number;
+  setMasterAmbientVolume: (v: number) => void;
+  activeAmbientCount: number;
+
+  // Spotify State
   activeSpotifyEmbed: string;
   setActiveSpotifyEmbed: (url: string) => void;
   spotifyEmbedHeight: 'compact' | 'full';
   setSpotifyEmbedHeight: (h: 'compact' | 'full') => void;
+
+  // YouTube State
   activeYouTubeEmbed: string;
   setActiveYouTubeEmbed: (url: string) => void;
+
+  // Playlists
   savedPlaylists: CustomItem[];
   handleImport: (url: string, name?: string) => { success: boolean; error?: string };
   handleDeletePlaylist: (id: string) => void;
+
+  // Overview status
   currentTrackLabel: string;
-  audioRef: React.RefObject<HTMLAudioElement | null>;
   isPlaying: boolean;
 }
 
@@ -215,13 +231,24 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     return 'ambient';
   });
 
-  const [activeAmbientTrack, setActiveAmbientTrack] = useState<string | null>(null);
-  const [volume, setVolume] = useState<number>(0.5);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Multi-Track Ambient Sound State
+  const [ambientTracksState, setAmbientTracksState] = useState<Record<string, TrackLayerState>>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_AMBIENT_STATE_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    const initial: Record<string, TrackLayerState> = {};
+    LOCAL_TRACKS.forEach((t) => {
+      initial[t.id] = { playing: false, volume: t.defaultVolume };
+    });
+    return initial;
+  });
+
+  const [masterAmbientVolume, setMasterAmbientVolume] = useState<number>(0.8);
+  const audioElementsRef = useRef<Record<string, HTMLAudioElement | null>>({});
 
   const [activeSpotifyEmbed, setActiveSpotifyEmbed] = useState<string>(SPOTIFY_PRESETS[0].embedUrl);
   const [spotifyEmbedHeight, setSpotifyEmbedHeight] = useState<'compact' | 'full'>('compact');
-
   const [activeYouTubeEmbed, setActiveYouTubeEmbed] = useState<string>(YOUTUBE_PRESETS[0].embedUrl);
 
   const [savedPlaylists, setSavedPlaylists] = useState<CustomItem[]>(() => {
@@ -237,12 +264,14 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_ACTIVE_MODE_KEY, mode);
     } catch {}
-
-    if (mode !== 'ambient' && audioRef.current) {
-      audioRef.current.pause();
-      setActiveAmbientTrack(null);
-    }
   }, [mode]);
+
+  // Persist ambient mixer state
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_AMBIENT_STATE_KEY, JSON.stringify(ambientTracksState));
+    } catch {}
+  }, [ambientTracksState]);
 
   // Persist playlists
   useEffect(() => {
@@ -251,25 +280,57 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [savedPlaylists]);
 
-  // Ambient Audio Playback Sync
+  // Sync Audio Elements with Multi-Track State
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-      if (activeAmbientTrack && mode === 'ambient') {
-        audioRef.current.play().catch((e) => console.log('Audio play blocked:', e));
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [activeAmbientTrack, volume, mode]);
+    LOCAL_TRACKS.forEach((track) => {
+      const el = audioElementsRef.current[track.id];
+      if (el) {
+        const state = ambientTracksState[track.id] ?? { playing: false, volume: track.defaultVolume };
+        el.volume = Math.max(0, Math.min(1, state.volume * masterAmbientVolume));
 
-  const handleSelectAmbient = (trackId: string) => {
-    if (activeAmbientTrack === trackId) {
-      audioRef.current?.pause();
-      setActiveAmbientTrack(null);
-    } else {
-      setActiveAmbientTrack(trackId);
-    }
+        if (state.playing) {
+          el.play().catch((err) => console.log(`Audio play for ${track.id} blocked:`, err));
+        } else {
+          el.pause();
+        }
+      }
+    });
+  }, [ambientTracksState, masterAmbientVolume]);
+
+  const toggleAmbientTrack = (trackId: string) => {
+    setAmbientTracksState((prev) => {
+      const current = prev[trackId] ?? { playing: false, volume: 0.5 };
+      return {
+        ...prev,
+        [trackId]: {
+          ...current,
+          playing: !current.playing,
+        },
+      };
+    });
+  };
+
+  const setTrackVolume = (trackId: string, volume: number) => {
+    setAmbientTracksState((prev) => {
+      const current = prev[trackId] ?? { playing: true, volume: 0.5 };
+      return {
+        ...prev,
+        [trackId]: {
+          ...current,
+          volume: Math.max(0, Math.min(1, volume)),
+        },
+      };
+    });
+  };
+
+  const stopAllAmbient = () => {
+    setAmbientTracksState((prev) => {
+      const next: Record<string, TrackLayerState> = {};
+      Object.keys(prev).forEach((key) => {
+        next[key] = { ...prev[key], playing: false };
+      });
+      return next;
+    });
   };
 
   const handleImport = (rawUrl: string, name?: string): { success: boolean; error?: string } => {
@@ -315,25 +376,36 @@ export function AudioProvider({ children }: { children: ReactNode }) {
     setSavedPlaylists((prev) => prev.filter((p) => p.id !== id));
   };
 
-  // Determine current active track label
+  // Active ambient count
+  const activeAmbientList = LOCAL_TRACKS.filter((t) => ambientTracksState[t.id]?.playing);
+  const activeAmbientCount = activeAmbientList.length;
+
+  // Determine current active track label & playback state
   let currentTrackLabel = '';
   let isPlaying = false;
 
-  if (mode === 'ambient') {
-    const track = LOCAL_TRACKS.find((t) => t.id === activeAmbientTrack);
-    if (track) {
-      currentTrackLabel = track.label;
-      isPlaying = true;
+  if (activeAmbientCount > 0) {
+    isPlaying = true;
+    if (mode === 'ambient') {
+      if (activeAmbientCount === 1) {
+        currentTrackLabel = activeAmbientList[0].label;
+      } else {
+        currentTrackLabel = `${activeAmbientList.map((t) => t.label).join(' + ')}`;
+      }
     }
-  } else if (mode === 'spotify') {
+  }
+
+  if (mode === 'spotify') {
     const custom = savedPlaylists.find((p) => p.embedUrl === activeSpotifyEmbed);
     const preset = SPOTIFY_PRESETS.find((p) => p.embedUrl === activeSpotifyEmbed);
-    currentTrackLabel = custom?.name || preset?.name || 'Spotify Stream';
+    const baseName = custom?.name || preset?.name || 'Spotify Stream';
+    currentTrackLabel = activeAmbientCount > 0 ? `${baseName} (+${activeAmbientCount} Ambient)` : baseName;
     isPlaying = true;
   } else if (mode === 'youtube') {
     const custom = savedPlaylists.find((p) => p.embedUrl === activeYouTubeEmbed);
     const preset = YOUTUBE_PRESETS.find((p) => p.embedUrl === activeYouTubeEmbed);
-    currentTrackLabel = custom?.name || preset?.name || 'YouTube Stream';
+    const baseName = custom?.name || preset?.name || 'YouTube Stream';
+    currentTrackLabel = activeAmbientCount > 0 ? `${baseName} (+${activeAmbientCount} Ambient)` : baseName;
     isPlaying = true;
   }
 
@@ -342,11 +414,13 @@ export function AudioProvider({ children }: { children: ReactNode }) {
       value={{
         mode,
         setMode,
-        activeAmbientTrack,
-        setActiveAmbientTrack,
-        handleSelectAmbient,
-        volume,
-        setVolume,
+        ambientTracksState,
+        toggleAmbientTrack,
+        setTrackVolume,
+        stopAllAmbient,
+        masterAmbientVolume,
+        setMasterAmbientVolume,
+        activeAmbientCount,
         activeSpotifyEmbed,
         setActiveSpotifyEmbed,
         spotifyEmbedHeight,
@@ -357,16 +431,21 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         handleImport,
         handleDeletePlaylist,
         currentTrackLabel,
-        audioRef,
         isPlaying,
       }}
     >
-      {/* Persistent Global Native Audio Element for Ambient Soundscapes */}
-      <audio
-        ref={audioRef}
-        src={LOCAL_TRACKS.find((t) => t.id === activeAmbientTrack)?.src}
-        loop
-      />
+      {/* Persistent Multi-Track Native Audio Elements */}
+      {LOCAL_TRACKS.map((track) => (
+        <audio
+          key={track.id}
+          ref={(el) => {
+            audioElementsRef.current[track.id] = el;
+          }}
+          src={track.src}
+          loop
+          preload="auto"
+        />
+      ))}
       {children}
     </AudioContext.Provider>
   );
@@ -379,4 +458,3 @@ export function useAudio() {
   }
   return context;
 }
-

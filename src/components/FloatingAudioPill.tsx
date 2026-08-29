@@ -1,9 +1,9 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAudio } from '@/context/AudioContext';
-import { Music, Pause, Play, ChevronRight } from 'lucide-react';
+import { Music, Pause, ChevronRight } from 'lucide-react';
 
 export default function FloatingAudioPill() {
-  const { isPlaying, currentTrackLabel, mode, activeAmbientTrack, setActiveAmbientTrack } = useAudio();
+  const { isPlaying, currentTrackLabel, mode, activeAmbientCount, stopAllAmbient } = useAudio();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -12,11 +12,9 @@ export default function FloatingAudioPill() {
     return null;
   }
 
-  const handleTogglePlay = (e: React.MouseEvent) => {
+  const handleStopAmbient = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (mode === 'ambient') {
-      setActiveAmbientTrack(null);
-    }
+    stopAllAmbient();
   };
 
   return (
@@ -37,19 +35,23 @@ export default function FloatingAudioPill() {
               </p>
             </div>
             <p className="text-[10px] text-coffee-400 capitalize">
-              {mode === 'ambient' ? 'Ambient Soundscape' : mode === 'spotify' ? 'Spotify Player' : 'YouTube Music'}
+              {mode === 'ambient' 
+                ? `${activeAmbientCount} Ambient Sound${activeAmbientCount > 1 ? 's' : ''}` 
+                : mode === 'spotify' 
+                ? 'Spotify Player' 
+                : 'YouTube Music'}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          {mode === 'ambient' && (
+          {mode === 'ambient' && activeAmbientCount > 0 && (
             <button
-              onClick={handleTogglePlay}
+              onClick={handleStopAmbient}
               className="p-1.5 rounded-lg bg-coffee-800/80 hover:bg-coffee-700 text-coffee-300 hover:text-white transition-all"
-              title={activeAmbientTrack ? 'Pause Sound' : 'Play Sound'}
+              title="Pause Ambient Sounds"
             >
-              {activeAmbientTrack ? <Pause size={14} /> : <Play size={14} />}
+              <Pause size={14} />
             </button>
           )}
 
@@ -62,4 +64,3 @@ export default function FloatingAudioPill() {
     </div>
   );
 }
-

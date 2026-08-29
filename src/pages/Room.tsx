@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Play, 
@@ -16,6 +16,7 @@ import {
   Minus
 } from 'lucide-react';
 import { useStudy } from '@/context/StudyContext';
+import { SUBJECTS } from '@/lib/constants';
 
 export default function Room() {
   const {
@@ -42,6 +43,14 @@ export default function Room() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [isCustomSubject, setIsCustomSubject] = useState(false);
+
+  // Alphabetically sorted subjects including any custom subjects
+  const availableSubjects = useMemo(() => {
+    const set = new Set<string>(SUBJECTS);
+    if (subject && subject.trim()) set.add(subject.trim());
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [subject]);
 
   // Local draft settings for the modal
   const [draftFocus, setDraftFocus] = useState(pomoSettings.focusMinutes);
@@ -118,17 +127,56 @@ export default function Room() {
 
   return (
     <div className="animate-fade-in flex flex-col relative z-10">
-      {/* Top Bar: Subject & Mode Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <p className="text-xs text-coffee-400 font-medium tracking-wide uppercase">Study Room</p>
-          <input 
-            type="text"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder="Subject name..."
-            className="text-xl font-bold text-white bg-transparent border-b border-transparent hover:border-white/20 focus:outline-none focus:border-primary-500 transition-all w-52 py-0.5"
-          />
+      {/* Top Bar: Subject Selector & Mode Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        <div className="flex-1 max-w-xs">
+          <p className="text-xs text-coffee-400 font-medium tracking-wide uppercase mb-1">Subject</p>
+          
+          {isCustomSubject ? (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                autoFocus
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder="Type new subject..."
+                className="w-full px-3.5 py-2 text-sm font-semibold rounded-xl bg-coffee-800/80 border border-primary-500/50 text-white focus:outline-none focus:ring-1 focus:ring-primary-500/30 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomSubject(false);
+                  if (!subject) setSubject('General');
+                }}
+                className="p-2 rounded-xl bg-coffee-800 text-coffee-400 hover:text-white border border-white/5 transition-colors"
+                title="Cancel"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <select
+              value={subject || 'General'}
+              onChange={(e) => {
+                if (e.target.value === 'CUSTOM_NEW') {
+                  setSubject('');
+                  setIsCustomSubject(true);
+                } else {
+                  setSubject(e.target.value);
+                }
+              }}
+              className="w-full px-3.5 py-2 text-sm font-semibold rounded-xl bg-coffee-950/80 border border-white/10 text-white focus:outline-none focus:border-primary-500/50 cursor-pointer transition-all shadow-inner"
+            >
+              {availableSubjects.map((s) => (
+                <option key={s} value={s} className="bg-coffee-900 text-white font-medium">
+                  {s}
+                </option>
+              ))}
+              <option value="CUSTOM_NEW" className="bg-coffee-900 font-bold text-primary-400">
+                ➕ Create new subject...
+              </option>
+            </select>
+          )}
         </div>
         
         {/* Stopwatch vs Pomodoro Mode Toggle */}

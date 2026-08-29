@@ -6,7 +6,10 @@ import {
   Plus, 
   Trash2, 
   Sparkles, 
-  Play 
+  Play,
+  Sliders,
+  Layers,
+  Square
 } from 'lucide-react';
 import { 
   useAudio, 
@@ -23,10 +26,13 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
   const {
     mode,
     setMode,
-    activeAmbientTrack,
-    handleSelectAmbient,
-    volume,
-    setVolume,
+    ambientTracksState,
+    toggleAmbientTrack,
+    setTrackVolume,
+    stopAllAmbient,
+    masterAmbientVolume,
+    setMasterAmbientVolume,
+    activeAmbientCount,
     activeSpotifyEmbed,
     setActiveSpotifyEmbed,
     spotifyEmbedHeight,
@@ -64,8 +70,17 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
           <div className="w-8 h-8 rounded-lg bg-primary-500/10 flex items-center justify-center text-primary-300">
             <Music size={16} />
           </div>
-          <p className="text-sm font-semibold text-white">Audio & Music</p>
+          <div>
+            <p className="text-sm font-semibold text-white">Audio & Music Hub</p>
+            {activeAmbientCount > 0 && (
+              <p className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {activeAmbientCount} ambient sound{activeAmbientCount > 1 ? 's' : ''} layering
+              </p>
+            )}
+          </div>
         </div>
+        
         <button
           onClick={() => {
             setShowImportForm(!showImportForm);
@@ -87,7 +102,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
               : 'text-coffee-400 hover:text-white'
           }`}
         >
-          Ambient
+          Ambient Mixer
         </button>
         <button
           onClick={() => setMode('spotify')}
@@ -152,55 +167,128 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
         </form>
       )}
 
-      {/* TAB 1: AMBIENT SOUNDSCAPES */}
+      {/* TAB 1: AMBIENT SOUND MIXER (Multi-Track) */}
       {mode === 'ambient' && (
         <div className="animate-fade-in space-y-4">
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-coffee-400 font-medium">Select multiple sounds to blend together:</p>
+            {activeAmbientCount > 0 && (
+              <button
+                onClick={stopAllAmbient}
+                className="text-[11px] text-rose-400 hover:text-rose-300 font-medium flex items-center gap-1 transition-colors"
+              >
+                <Square size={10} fill="currentColor" /> Stop All
+              </button>
+            )}
+          </div>
+
+          {/* Sound Cards with Individual Volume Sliders */}
+          <div className="space-y-2.5">
             {LOCAL_TRACKS.map(({ id, label, icon: Icon }) => {
-              const isActive = activeAmbientTrack === id;
+              const state = ambientTracksState[id] ?? { playing: false, volume: 0.5 };
+              const isPlaying = state.playing;
+
               return (
-                <button
+                <div
                   key={id}
-                  onClick={() => handleSelectAmbient(id)}
-                  className={`flex flex-col items-center justify-center gap-2 rounded-xl border p-3 text-xs font-medium transition-all duration-300 ${
-                    isActive
-                      ? 'border-primary-500/30 bg-primary-500/15 text-primary-300 shadow-md shadow-primary-500/10'
-                      : 'border-white/5 bg-coffee-800/50 text-coffee-400 hover:text-white hover:bg-coffee-700/50'
+                  className={`rounded-2xl border p-3.5 transition-all duration-300 ${
+                    isPlaying
+                      ? 'border-primary-500/40 bg-primary-500/15 shadow-lg shadow-primary-500/5'
+                      : 'border-white/5 bg-coffee-800/40 hover:bg-coffee-800/70'
                   }`}
                 >
-                  <Icon size={20} className={isActive ? 'animate-pulse text-primary-300' : ''} />
-                  <span>{label}</span>
-                </button>
+                  <div className="flex items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleAmbientTrack(id)}
+                      className="flex items-center gap-3 flex-1 text-left select-none"
+                    >
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                        isPlaying ? 'bg-primary-500/25 text-primary-300' : 'bg-coffee-700/60 text-coffee-400'
+                      }`}>
+                        <Icon size={18} className={isPlaying ? 'animate-pulse' : ''} />
+                      </div>
+                      <div>
+                        <p className={`text-xs font-semibold ${isPlaying ? 'text-white' : 'text-coffee-300'}`}>
+                          {label}
+                        </p>
+                        <p className="text-[10px] text-coffee-400">
+                          {isPlaying ? 'Active • Looping' : 'Click to play'}
+                        </p>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleAmbientTrack(id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                        isPlaying
+                          ? 'bg-[#f1d6b9] text-coffee-950 shadow'
+                          : 'bg-coffee-700/60 text-coffee-300 hover:text-white'
+                      }`}
+                    >
+                      {isPlaying ? 'Playing' : 'Play'}
+                    </button>
+                  </div>
+
+                  {/* Individual Track Volume Slider */}
+                  {isPlaying && (
+                    <div className="flex items-center gap-3 pt-3 mt-3 border-t border-white/5 animate-fade-in">
+                      <Volume2 size={14} className="text-primary-300 shrink-0" />
+                      <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.05"
+                        value={state.volume}
+                        onChange={(e) => setTrackVolume(id, Number(e.target.value))}
+                        className="w-full h-1.5 bg-coffee-950 rounded-lg appearance-none cursor-pointer accent-primary-400"
+                      />
+                      <span className="text-[10px] text-coffee-300 font-mono w-7 text-right">
+                        {Math.round(state.volume * 100)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
 
-          {/* Volume Control */}
-          <div className="flex items-center gap-3 pt-1">
-            {volume === 0 ? (
-              <VolumeX size={18} className="text-coffee-500 shrink-0" />
-            ) : (
-              <Volume2 size={18} className="text-primary-300 shrink-0" />
-            )}
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.05"
-              value={volume}
-              onChange={(e) => setVolume(Number(e.target.value))}
-              className="w-full h-1.5 bg-coffee-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
-            />
-            <span className="text-[10px] text-coffee-400 font-mono w-7 text-right">
-              {Math.round(volume * 100)}%
-            </span>
-          </div>
+          {/* Master Ambient Volume */}
+          {activeAmbientCount > 0 && (
+            <div className="pt-2 border-t border-white/5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                  <Sliders size={13} className="text-primary-300" /> Master Ambient Volume
+                </span>
+                <span className="text-[10px] text-coffee-400 font-mono">
+                  {Math.round(masterAmbientVolume * 100)}%
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                {masterAmbientVolume === 0 ? (
+                  <VolumeX size={16} className="text-coffee-500 shrink-0" />
+                ) : (
+                  <Volume2 size={16} className="text-primary-300 shrink-0" />
+                )}
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={masterAmbientVolume}
+                  onChange={(e) => setMasterAmbientVolume(Number(e.target.value))}
+                  className="w-full h-1.5 bg-coffee-800 rounded-lg appearance-none cursor-pointer accent-primary-500"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* TAB 2: SPOTIFY PLAYER */}
       {mode === 'spotify' && (
-        <div className="animate-fade-in space-y-3">
+        <div className="animate-fade-in space-y-4">
           {/* Preset Selector */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             <span className="text-[10px] text-coffee-400 font-medium uppercase tracking-wider shrink-0 mr-1">Presets:</span>
@@ -282,12 +370,50 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
               {spotifyEmbedHeight === 'compact' ? 'Expand Player ▾' : 'Collapse Player ▴'}
             </button>
           </div>
+
+          {/* Concurrent Ambient Sound Layer for Spotify */}
+          <div className="p-3.5 rounded-2xl bg-coffee-950/70 border border-white/5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                <Layers size={13} className="text-primary-300" /> Layer Ambient Sound with Spotify:
+              </span>
+              {activeAmbientCount > 0 && (
+                <button
+                  onClick={stopAllAmbient}
+                  className="text-[10px] text-rose-400 hover:underline"
+                >
+                  Turn Off Sounds
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              {LOCAL_TRACKS.map(({ id, label, icon: Icon }) => {
+                const isPlaying = ambientTracksState[id]?.playing;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => toggleAmbientTrack(id)}
+                    className={`flex-1 py-2 px-2 rounded-xl text-xs font-medium border transition-all flex items-center justify-center gap-1.5 ${
+                      isPlaying
+                        ? 'bg-primary-500/25 border-primary-500/40 text-primary-200'
+                        : 'bg-coffee-800/40 border-white/5 text-coffee-400 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={14} className={isPlaying ? 'animate-pulse text-primary-300' : ''} />
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 
       {/* TAB 3: YOUTUBE & YOUTUBE MUSIC PLAYER */}
       {mode === 'youtube' && (
-        <div className="animate-fade-in space-y-3">
+        <div className="animate-fade-in space-y-4">
           {/* Preset Selector */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             <span className="text-[10px] text-coffee-400 font-medium uppercase tracking-wider shrink-0 mr-1">Presets:</span>
@@ -356,9 +482,44 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
               allowFullScreen
             />
           </div>
-          <p className="text-[10px] text-coffee-500 text-center">
-            Supports YouTube videos, livestreams, and YouTube Music playlists.
-          </p>
+
+          {/* Concurrent Ambient Sound Layer for YouTube */}
+          <div className="p-3.5 rounded-2xl bg-coffee-950/70 border border-white/5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                <Layers size={13} className="text-primary-300" /> Layer Ambient Sound with YouTube:
+              </span>
+              {activeAmbientCount > 0 && (
+                <button
+                  onClick={stopAllAmbient}
+                  className="text-[10px] text-rose-400 hover:underline"
+                >
+                  Turn Off Sounds
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              {LOCAL_TRACKS.map(({ id, label, icon: Icon }) => {
+                const isPlaying = ambientTracksState[id]?.playing;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => toggleAmbientTrack(id)}
+                    className={`flex-1 py-2 px-2 rounded-xl text-xs font-medium border transition-all flex items-center justify-center gap-1.5 ${
+                      isPlaying
+                        ? 'bg-primary-500/25 border-primary-500/40 text-primary-200'
+                        : 'bg-coffee-800/40 border-white/5 text-coffee-400 hover:text-white'
+                    }`}
+                  >
+                    <Icon size={14} className={isPlaying ? 'animate-pulse text-primary-300' : ''} />
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>

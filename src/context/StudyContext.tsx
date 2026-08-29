@@ -99,7 +99,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
   const { user, profile, refreshProfile } = useAuth();
 
   const [timerMode, setTimerMode] = useState<TimerMode>('stopwatch');
-  const [subject, setSubject] = useState<string>(() => profile?.main_subject ?? SUBJECTS[0]);
+  const [subject, setSubject] = useState<string>('General');
   const [running, setRunning] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
 
@@ -143,12 +143,6 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // Sync default subject from profile
-  useEffect(() => {
-    if (profile?.main_subject && !subject) {
-      setSubject(profile.main_subject);
-    }
-  }, [profile?.main_subject, subject]);
 
   // Main Timer Loop (handles Stopwatch & Pomodoro)
   useEffect(() => {
@@ -306,7 +300,7 @@ export function StudyProvider({ children }: { children: ReactNode }) {
     setSaving(true);
     setRunning(false);
 
-    const cleanSubject = subject || (profile?.main_subject ?? SUBJECTS[0]);
+    const cleanSubject = subject || 'General';
 
     // 1. Primary Secure RPC: Awards coins and creates verified study log on the server
     const { error: rpcError } = await supabase.rpc('log_study_session', {
