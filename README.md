@@ -17,12 +17,12 @@ A gamified study tracker with persistent timers, background music, AI quiz gener
 
 ## ✨ Features
 
-* **Persistent Study Timer:** Runs continuously in the background across page navigation with live tab title updates `(MM:SS)` and reload protection.
-* **Music & Ambient Audio:** Built-in ambient sounds (Lofi, Rain, Sunset) + Spotify and YouTube/YT Music playlist embeds that keep playing seamlessly across pages.
+* **Stopwatch & Pomodoro Modes:** Switch between count-up stopwatch and customizable Pomodoro intervals (Focus, Short Break, Long Break) with background route tracking, live tab title updates `(MM:SS)`, and audio chimes.
+* **Music & Multi-Track Mixer:** Built-in ambient sounds (Lofi, Rain, Sunset) with individual volume controls, plus support to import any Spotify, YouTube, or YouTube Music playlist to play simultaneously alongside ambient layers.
 * **AI Quiz Generator:** Generates multiple-choice quizzes directly from study notes using the Gemini API, with automatic grading and bonus coins.
 * **Gamification & Rewards:** Earn 1 coin per minute studied, unlock cumulative hour badges, and buy avatar frames/auras in the shop.
 * **Leaderboards & Squads:** Global weekly/monthly/all-time leaderboards and private study squads with invite codes.
-* **Tasks & Analytics:** Priority-tagged todo list, study streaks, and visual time breakdown charts.
+* **Tasks & Analytics:** Priority-tagged todo list, study streaks, and visual time breakdown charts (Weekly, Monthly, Lifetime).
 * **Themes & PWA:** 4 atmospheric theme backgrounds (Canopy, Summit, Studio, Void) and installable PWA support.
 
 ---
