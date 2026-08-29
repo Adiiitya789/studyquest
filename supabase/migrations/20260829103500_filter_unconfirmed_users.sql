@@ -133,3 +133,4 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION get_public_profile(text) FROM anon;
 GRANT EXECUTE ON FUNCTION get_public_profile(text) TO authenticated;
+
