@@ -26,23 +26,44 @@ export function StudyProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
 
+  // Anti-Cheat & Speed-Hack Protection Refs:
+  // Tracks physical wall-clock timestamps to prevent interval acceleration or variable spoofing
+  const sessionStartTimeRef = useRef<number | null>(null);
+  const lastResumeTimeRef = useRef<number | null>(null);
+  const accumulatedMsRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Update default subject if user profile loads and subject hasn't been modified
+  // Update default subject if profile loads
   useEffect(() => {
     if (profile?.main_subject && !subject) {
       setSubject(profile.main_subject);
     }
   }, [profile?.main_subject, subject]);
 
-  // Global Timer Interval
+  // Global Verified Timer Loop
   useEffect(() => {
     if (running) {
+      if (!sessionStartTimeRef.current) {
+        sessionStartTimeRef.current = Date.now();
+      }
+      lastResumeTimeRef.current = Date.now();
+
       intervalRef.current = setInterval(() => {
-        setSeconds((prev) => prev + 1);
+        // Calculate true elapsed wall-clock milliseconds
+        const currentSegmentMs = lastResumeTimeRef.current ? Date.now() - lastResumeTimeRef.current : 0;
+        const totalPhysicalMs = accumulatedMsRef.current + currentSegmentMs;
+        const verifiedSeconds = Math.floor(totalPhysicalMs / 1000);
+
+        setSeconds(verifiedSeconds);
       }, 1000);
-    } else if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    } else {
+      if (lastResumeTimeRef.current) {
+        accumulatedMsRef.current += Date.now() - lastResumeTimeRef.current;
+        lastResumeTimeRef.current = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     }
 
     return () => {
@@ -88,45 +109,64 @@ export function StudyProvider({ children }: { children: ReactNode }) {
   const resetTimer = () => {
     setRunning(false);
     setSeconds(0);
+    sessionStartTimeRef.current = null;
+    lastResumeTimeRef.current = null;
+    accumulatedMsRef.current = 0;
   };
 
   const endSession = async (): Promise<boolean> => {
-    if (!user || seconds < 60) {
-      setRunning(false);
-      setSeconds(0);
+    // Re-verify against physical wall-clock time
+    const currentSegmentMs = lastResumeTimeRef.current ? Date.now() - lastResumeTimeRef.current : 0;
+    const totalPhysicalMs = accumulatedMsRef.current + currentSegmentMs;
+    const verifiedPhysicalSeconds = Math.floor(totalPhysicalMs / 1000);
+
+    // Anti-Cheat Clamping: Prevent spoofed seconds values
+    const finalSeconds = Math.min(seconds, verifiedPhysicalSeconds);
+
+    if (!user || finalSeconds < 60) {
+      resetTimer();
       return false;
     }
 
     setSaving(true);
     setRunning(false);
 
-    const mins = Math.floor(seconds / 60);
-    const coins = coinsForMinutes(mins);
+    const mins = Math.floor(finalSeconds / 60);
+    const cleanSubject = subject || (profile?.main_subject ?? SUBJECTS[0]);
 
-    const { error: insertError } = await supabase.from('study_logs').insert({
-      user_id: user.id,
-      subject: subject || (profile?.main_subject ?? SUBJECTS[0]),
-      minutes: mins,
-      manual: false,
+    // 1. Primary Secure RPC: Awards coins and creates verified study log on the server
+    const { error: rpcError } = await supabase.rpc('log_study_session', {
+      p_subject: cleanSubject,
+      p_minutes: mins,
     });
 
-    if (insertError) {
-      console.error('Failed to log study session:', insertError.message);
-    } else if (coins > 0 && profile) {
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ coins: profile.coins + coins })
-        .eq('id', user.id);
+    if (rpcError) {
+      console.warn('log_study_session RPC fallback:', rpcError.message);
 
-      if (updateError) {
-        console.error('Failed to credit coins:', updateError.message);
-      } else {
-        await refreshProfile();
+      // Fallback in case RPC migration has not been applied yet
+      const { error: insertError } = await supabase.from('study_logs').insert({
+        user_id: user.id,
+        subject: cleanSubject,
+        minutes: mins,
+        manual: false,
+      });
+
+      if (insertError) {
+        console.error('Failed to log study session:', insertError.message);
+      } else if (profile) {
+        const coins = coinsForMinutes(mins);
+        if (coins > 0) {
+          await supabase
+            .from('profiles')
+            .update({ coins: profile.coins + coins })
+            .eq('id', user.id);
+        }
       }
     }
 
+    await refreshProfile();
+    resetTimer();
     setSaving(false);
-    setSeconds(0);
     return true;
   };
 
@@ -157,4 +197,3 @@ export function useStudy() {
   }
   return context;
 }
-

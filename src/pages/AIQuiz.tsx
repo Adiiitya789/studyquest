@@ -99,19 +99,17 @@ export default function AIQuiz() {
       });
     }
 
-    // The database awards the coins server-side (see submit_quiz_result in the
-    // migrations) based on the score we report — it no longer trusts a
-    // client-computed coin total written straight to profiles.coins.
     if (user && quiz) {
-      const { error } = await supabase.rpc('submit_quiz_result', {
+      const { error: rpcError } = await supabase.rpc('submit_quiz_result', {
         p_correct: correctCount,
         p_total: quiz.length,
       });
-      if (error) {
-        console.error('Failed to submit quiz result:', error.message);
-      } else {
-        await refreshProfile(); // Update coin balance in UI instantly
+
+      if (rpcError) {
+        console.warn('submit_quiz_result RPC fallback:', rpcError.message);
       }
+
+      await refreshProfile();
     }
   }
 
