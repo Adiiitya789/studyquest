@@ -1,7 +1,13 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { ThemeProvider, useTheme, THEME_BACKGROUNDS } from '@/context/ThemeContext';
+import { StudyProvider } from '@/context/StudyContext';
+import { AudioProvider } from '@/context/AudioContext';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
+import SoundPlayer from '@/components/SoundPlayer';
+import FloatingAudioPill from '@/components/FloatingAudioPill';
+import StudyingNow from '@/components/StudyingNow';
+import BottomNav from '@/components/BottomNav';
 import Login from '@/pages/Login';
 import Dashboard from '@/pages/Dashboard';
 import Room from '@/pages/Room';
@@ -10,14 +16,15 @@ import Stats from '@/pages/Stats';
 import Leaderboard from '@/pages/Leaderboard';
 import Profile from '@/pages/Profile';
 import PublicProfile from '@/pages/PublicProfile';
-import BottomNav from '@/components/BottomNav';
+import Admin from '@/pages/Admin';
+import AIQuiz from '@/pages/AIQuiz';
 import type { ReactNode } from 'react';
-import Admin from './pages/Admin';
-import AIQuiz from './pages/AIQuiz';
 
 function ProtectedLayout({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { theme } = useTheme();
+  const location = useLocation();
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-coffee-950">
@@ -26,9 +33,12 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
     );
   }
   if (!user) return <Navigate to="/" replace />;
+
+  const isRoom = location.pathname === '/room';
+
   return (
     <div className="min-h-screen bg-coffee-950 pb-24 relative">
-      {/* Theme background — same picker as Study Room, now applied app-wide */}
+      {/* Theme background */}
       {theme !== 'void' && (
         <div
           className="fixed inset-0 w-full h-full bg-cover bg-center transition-opacity duration-1000 pointer-events-none"
@@ -43,14 +53,24 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
       <div className="mx-auto max-w-2xl px-4 pt-6 relative z-10">
         <ThemeSwitcher />
         {children}
+
+        {/* Persistent Audio Player — Kept mounted across all route transitions */}
+        <div className={isRoom ? 'w-full max-w-md mx-auto mb-6' : 'fixed -left-[99999px] opacity-0 pointer-events-none'}>
+          <SoundPlayer isEmbedded={isRoom} />
+        </div>
+
+        {/* Studying Now on Room Page */}
+        {isRoom && <StudyingNow />}
       </div>
+
+      {/* Global Floating Mini Audio Pill for other pages */}
+      <FloatingAudioPill />
+
       <BottomNav />
     </div>
   );
 }
 
-// Same auth gate as ProtectedLayout, but without the bottom-nav/max-width app
-// shell — Admin renders its own full-bleed layout.
 function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) {
@@ -94,9 +114,13 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <StudyProvider>
+          <AudioProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AudioProvider>
+        </StudyProvider>
       </ThemeProvider>
     </AuthProvider>
   );

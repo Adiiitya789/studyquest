@@ -3,8 +3,8 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PERKS, BADGES } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
-import type { Perk, StudyLog } from '@/lib/types';
-import { User as UserIcon, Coins, Clock, Flame, LogOut, Lock, Check, Eye, EyeOff } from 'lucide-react';
+import type { Perk } from '@/lib/types';
+import { Coins, LogOut, Lock, Check, Eye, EyeOff } from 'lucide-react';
 
 export default function Profile() {
   const { user, profile, signOut, refreshProfile } = useAuth();
@@ -57,7 +57,6 @@ export default function Profile() {
   }, [user]);
 
   const totalHours = totalMinutes / 60;
-  const unlockedBadges = BADGES.filter((b) => totalHours >= b.hours);
 
   async function buyPerk(perkId: string, cost: number) {
     if (!user || !profile || profile.coins < cost) return;

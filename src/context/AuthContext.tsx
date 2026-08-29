@@ -15,10 +15,6 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-function slugify(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]/g, '') + Math.floor(Math.random() * 10000).toString();
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -70,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // UPDATED: Now passes the name and subject, and removes the manual DB insert!
   async function signUp(email: string, password: string, displayName: string, mainSubject: string) {
-    const { data, error } = await supabase.auth.signUp({ 
+    const { error } = await supabase.auth.signUp({ 
       email, 
       password,
       options: {

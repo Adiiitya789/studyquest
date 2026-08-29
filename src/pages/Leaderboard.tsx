@@ -3,19 +3,18 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { BADGES } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
-import type { LeaderboardEntry, StudyGroup, GroupMember } from '@/lib/types';
+import type { LeaderboardEntry, StudyGroup } from '@/lib/types';
 import { Trophy, Users, Plus, X, Crown, Hash, Lock } from 'lucide-react';
 
 type Tab = 'global' | 'squads';
 type Timeframe = 'week' | 'month' | 'all';
 
 export default function Leaderboard() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('global');
   const [timeframe, setTimeframe] = useState<Timeframe>('week');
   const [globalData, setGlobalData] = useState<LeaderboardEntry[]>([]);
   const [groups, setGroups] = useState<StudyGroup[]>([]);
-  const [membersMap, setMembersMap] = useState<Record<string, GroupMember[]>>({});
   const [groupLeaderboard, setGroupLeaderboard] = useState<Record<string, LeaderboardEntry[]>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -51,11 +50,6 @@ export default function Leaderboard() {
       setGroups(groupData as StudyGroup[] ?? []);
 
       for (const gid of groupIds) {
-        const { data: members } = await supabase
-          .from('group_members')
-          .select('*')
-          .eq('group_id', gid);
-        setMembersMap((prev) => ({ ...prev, [gid]: members as GroupMember[] ?? [] }));
         const { data: lb } = await supabase.rpc('get_group_leaderboard', {
           p_group_id: gid,
           p_timeframe: 'all',
@@ -76,7 +70,6 @@ export default function Leaderboard() {
       const group = data as StudyGroup;
       await supabase.from('group_members').insert({ group_id: group.id, user_id: user.id });
       setGroups([group, ...groups]);
-      setMembersMap((prev) => ({ ...prev, [group.id]: [{ id: '', group_id: group.id, user_id: user.id, created_at: new Date().toISOString() }] }));
       setNewGroupName('');
       setShowCreate(false);
     }
@@ -131,8 +124,6 @@ export default function Leaderboard() {
     setViewingStats({ hours: totalHours, coins: prof?.coins || 0 });
     setLoadingProfile(false);
   }
-
-  const userRank = globalData.findIndex((e) => e.user_id === user?.id);
 
   // Parse perks for the modal styling
   const hasDiamondFrame = viewingPerks.includes('diamond_frame');
@@ -210,8 +201,7 @@ export default function Leaderboard() {
                     {entry.display_name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{entry.display_name}</p>
-                    <p className="text-xs text-coffee-500">{entry.main_subject}</p>
+                    <p className="text-sm font-semibold text-white truncate">{entry.display_name}</p>
                   </div>
                   <span className="text-sm font-semibold text-white tabular-nums">{entry.total_hours}h</span>
                 </div>

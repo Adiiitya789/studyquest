@@ -42,7 +42,6 @@ export default function Admin() {
     }
 
     fetchDashboard();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile, navigate]);
 
   const stats = useMemo(() => {

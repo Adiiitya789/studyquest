@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { BADGES, PERKS } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
 import type { PublicProfile as PublicProfileType } from '@/lib/types';
-import { ArrowLeft, Clock, Flame, CheckCircle2, Lock, Coins } from 'lucide-react';
+import { ArrowLeft, Lock, Coins } from 'lucide-react';
 
 export default function PublicProfile() {
   const { username } = useParams<{ username: string }>();

@@ -20,7 +20,7 @@ type Question = {
 };
 
 export default function AIQuiz() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, refreshProfile } = useAuth();
   
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);

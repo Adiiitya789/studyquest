@@ -6,10 +6,10 @@ import { SUBJECTS, coinsForMinutes } from '@/lib/constants';
 import { getUnlockedBadges, getNextBadge, getBadgeIcon } from '@/lib/badges';
 import type { StudyLog } from '@/lib/types';
 import CoinBadge from '@/components/CoinBadge';
-import { Play, Plus, Flame, Clock, ChevronRight, X } from 'lucide-react';
+import { Play, Plus, Flame, Clock, X } from 'lucide-react';
 
 export default function Dashboard() {
-  const { profile, user, refreshProfile } = useAuth();
+  const { profile, user } = useAuth();
   const navigate = useNavigate();
   const [logs, setLogs] = useState<StudyLog[]>([]);
   const [totalMinutes, setTotalMinutes] = useState(0);
