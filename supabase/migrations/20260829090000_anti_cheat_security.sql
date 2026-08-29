@@ -8,14 +8,13 @@ Secures the coin economy, timer validation, study logs, and shop purchases again
 1. `log_study_session(p_subject, p_minutes)` RPC:
    - Validates duration (1 <= minutes <= 720).
    - Inserts official study_logs row (manual = false).
-   - Credits profiles.coins server-side.
+   - Credits profiles.coins server-side (1 coin per minute).
 2. `buy_perk(p_perk_id)` RPC:
    - Enforces official price catalogue server-side.
    - Atomically checks user balance, deducts coins, and grants perk.
 3. `submit_quiz_result(p_correct, p_total)` RPC:
    - Validates score bounds (0 <= correct <= total <= 20).
-   - Computes rewards (5 coins per correct + 10 bonus for perfect score) server-side.
-4. Remove previous trigger that was intercepting coin updates.
+   - Credits 1 coin per correct answer.
 */
 
 -- ============ 0. CLEAN UP PREVIOUS TRIGGER ============
@@ -158,7 +157,6 @@ AS $$
 DECLARE
   v_user_id uuid;
   v_coins integer;
-  v_bonus integer := 0;
 BEGIN
   v_user_id := auth.uid();
   IF v_user_id IS NULL THEN
@@ -174,12 +172,8 @@ BEGIN
     RAISE EXCEPTION 'Correct answers count is out of bounds';
   END IF;
 
-  -- 5 coins per correct answer + 10 bonus for perfect score
-  v_coins := p_correct * 5;
-  IF p_correct = p_total AND p_total >= 3 THEN
-    v_bonus := 10;
-    v_coins := v_coins + v_bonus;
-  END IF;
+  -- 1 coin per correct answer
+  v_coins := p_correct;
 
   IF v_coins > 0 THEN
     UPDATE profiles
@@ -191,8 +185,7 @@ BEGIN
     'success', true,
     'correct', p_correct,
     'total', p_total,
-    'coins_awarded', v_coins,
-    'bonus', v_bonus
+    'coins_awarded', v_coins
   );
 END;
 $$;
