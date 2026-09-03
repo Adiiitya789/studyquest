@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { BADGES } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
 import type { LeaderboardEntry, StudyGroup } from '@/lib/types';
+import VipBadge from '@/components/VipBadge';
 import { Trophy, Users, Plus, X, Crown, Hash, Lock } from 'lucide-react';
 
 type Tab = 'global' | 'squads';
@@ -201,7 +202,10 @@ export default function Leaderboard() {
                     {entry.display_name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{entry.display_name}</p>
+                    <p className="text-sm font-semibold text-white truncate flex items-center gap-1.5">
+                      <span className="truncate">{entry.display_name}</span>
+                      {entry.is_vip && <VipBadge size="xs" />}
+                    </p>
                   </div>
                   <span className="text-sm font-semibold text-white tabular-nums">{entry.total_hours}h</span>
                 </div>
@@ -277,7 +281,10 @@ export default function Leaderboard() {
                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-coffee-600 to-coffee-700 flex items-center justify-center text-xs font-bold text-white">
                           {entry.display_name.charAt(0)}
                         </div>
-                        <span className="flex-1 text-sm text-white truncate">{entry.display_name}</span>
+                        <span className="flex-1 text-sm text-white truncate flex items-center gap-1.5">
+                          <span className="truncate">{entry.display_name}</span>
+                          {entry.is_vip && <VipBadge size="xs" />}
+                        </span>
                         <span className="text-xs text-coffee-400 tabular-nums">{entry.total_hours}h</span>
                       </div>
                     ))}
@@ -322,8 +329,9 @@ export default function Leaderboard() {
                       ${hasNeonGlow ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : ''}
                     `}>
                       {hasCrystal && <span className="text-xl">💎</span>}
-                      {viewingUser.display_name}
+                      <span>{viewingUser.display_name}</span>
                       {hasCrown && <span className="text-xl drop-shadow-none">👑</span>}
+                      {viewingUser.is_vip && <VipBadge size="sm" />}
                     </h2>
                     
                     <p className="text-sm text-coffee-400 mb-4">@{viewingUser.username}</p>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import type { AdminUserRow } from '@/lib/types';
+import VipBadge from '@/components/VipBadge';
 import { Users, Coins, Activity, Search, ShieldCheck, Clock, ListChecks, Sparkles } from 'lucide-react';
 
 export default function Admin() {
@@ -88,6 +89,21 @@ export default function Admin() {
       await fetchDashboard();
     }
     setIsGranting(false);
+  }
+
+  async function handleToggleVip(userId: string, nextStatus: boolean) {
+    const { error } = await supabase.rpc('set_user_vip', {
+      target_user_id: userId,
+      p_is_vip: nextStatus,
+    });
+    if (error) {
+      const { error: directErr } = await supabase.from('profiles').update({ is_vip: nextStatus }).eq('id', userId);
+      if (directErr) {
+        alert('Error updating VIP status: ' + error.message);
+        return;
+      }
+    }
+    await fetchDashboard();
   }
 
   // Show a dark screen while verifying admin credentials
@@ -230,12 +246,13 @@ export default function Admin() {
                   <th className="px-2 py-2 font-medium text-right">Perks</th>
                   <th className="px-2 py-2 font-medium text-center">Public</th>
                   <th className="px-2 py-2 font-medium text-center">Admin</th>
+                  <th className="px-2 py-2 font-medium text-center">VIP Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRows.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-2 py-6 text-center text-coffee-500">
+                    <td colSpan={9} className="px-2 py-6 text-center text-coffee-500">
                       No users match your search.
                     </td>
                   </tr>
@@ -243,7 +260,10 @@ export default function Admin() {
                   filteredRows.map((r) => (
                     <tr key={r.user_id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
                       <td className="px-2 py-3">
-                        <p className="text-white font-medium">{r.display_name}</p>
+                        <p className="text-white font-medium flex items-center gap-1.5">
+                          <span>{r.display_name}</span>
+                          {r.is_vip && <VipBadge size="xs" />}
+                        </p>
                         <p className="text-coffee-500 text-xs">@{r.username}</p>
                       </td>
                       <td className="px-2 py-3 text-coffee-300">{r.email}</td>
@@ -275,6 +295,20 @@ export default function Admin() {
                         ) : (
                           <span className="text-coffee-600 text-xs">—</span>
                         )}
+                      </td>
+                      <td className="px-2 py-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleVip(r.user_id, !r.is_vip)}
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                            r.is_vip
+                              ? 'bg-gradient-to-r from-amber-300 to-yellow-400 text-coffee-950 shadow-[0_0_8px_rgba(245,158,11,0.4)] hover:brightness-110'
+                              : 'bg-coffee-800/60 text-coffee-400 hover:text-white hover:bg-coffee-700'
+                          }`}
+                          title={r.is_vip ? 'Click to remove VIP' : 'Click to grant VIP'}
+                        >
+                          {r.is_vip ? '★ VIP' : 'Set VIP'}
+                        </button>
                       </td>
                     </tr>
                   ))

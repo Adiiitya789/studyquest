@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Users, Circle } from 'lucide-react';
 import type { LeaderboardEntry } from '@/lib/types';
+import VipBadge from '@/components/VipBadge';
 
 export default function StudyingNow() {
   const [onlineUsers, setOnlineUsers] = useState<LeaderboardEntry[]>([]);
@@ -33,7 +34,10 @@ export default function StudyingNow() {
                 <Circle size={8} className="absolute -bottom-0.5 -right-0.5 text-green-400 fill-green-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-white truncate drop-shadow-sm">{u.display_name}</p>
+                <p className="text-sm text-white truncate drop-shadow-sm flex items-center gap-1.5">
+                  <span className="truncate">{u.display_name}</span>
+                  {u.is_vip && <VipBadge size="xs" />}
+                </p>
                 <p className="text-xs text-coffee-400">{u.main_subject}</p>
               </div>
               <span className="text-xs text-coffee-400 tabular-nums">{u.total_hours}h</span>

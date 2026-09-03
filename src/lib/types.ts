@@ -6,6 +6,7 @@ export interface Profile {
   coins: number;
   show_on_leaderboard: boolean;
   is_admin: boolean;
+  is_vip?: boolean;
   created_at: string;
 }
 
@@ -55,6 +56,7 @@ export interface LeaderboardEntry {
   main_subject: string;
   total_minutes: number;
   total_hours: number;
+  is_vip?: boolean;
 }
 
 export interface AdminUserRow {
@@ -70,6 +72,7 @@ export interface AdminUserRow {
   perks_count: number;
   is_admin: boolean;
   show_on_leaderboard: boolean;
+  is_vip?: boolean;
   created_at: string;
 }
 
@@ -82,6 +85,7 @@ export interface PublicProfile {
   total_hours: number;
   tasks_done: number;
   perk_ids: string[];
+  is_vip?: boolean;
 }
 
 export interface PerkDef {

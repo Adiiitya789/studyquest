@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { PERKS, BADGES } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
 import type { Perk } from '@/lib/types';
+import VipBadge from '@/components/VipBadge';
 import { Coins, LogOut, Lock, Check, Eye, EyeOff } from 'lucide-react';
 
 export default function Profile() {
@@ -129,8 +130,9 @@ export default function Profile() {
             ${hasNeonGlow ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]' : ''}
           `}>
             {hasCrystal && <span className="text-lg">💎</span>}
-            {profile?.display_name}
+            <span>{profile?.display_name}</span>
             {hasCrown && <span className="text-lg drop-shadow-none">👑</span>}
+            {profile?.is_vip && <VipBadge size="sm" />}
           </h1>
           
           <p className="text-sm text-coffee-400">@{profile?.username}</p>

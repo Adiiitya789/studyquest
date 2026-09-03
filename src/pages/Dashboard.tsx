@@ -6,6 +6,7 @@ import { SUBJECTS, coinsForMinutes } from '@/lib/constants';
 import { getUnlockedBadges, getNextBadge, getBadgeIcon } from '@/lib/badges';
 import type { StudyLog } from '@/lib/types';
 import CoinBadge from '@/components/CoinBadge';
+import VipBadge from '@/components/VipBadge';
 import { Play, Plus, Flame, Clock, X } from 'lucide-react';
 
 export default function Dashboard() {
@@ -129,7 +130,10 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <p className="text-sm text-coffee-400">{greeting},</p>
-          <h1 className="text-2xl font-bold text-white">{profile?.display_name ?? 'Student'}</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <span>{profile?.display_name ?? 'Student'}</span>
+            {profile?.is_vip && <VipBadge size="xs" />}
+          </h1>
         </div>
         <CoinBadge />
       </div>

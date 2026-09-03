@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { BADGES, PERKS } from '@/lib/constants';
 import { getBadgeIcon } from '@/lib/badges';
 import type { PublicProfile as PublicProfileType } from '@/lib/types';
+import VipBadge from '@/components/VipBadge';
 import { ArrowLeft, Lock, Coins } from 'lucide-react';
 
 export default function PublicProfile() {
@@ -59,7 +60,10 @@ export default function PublicProfile() {
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-2xl font-bold text-white mx-auto mb-3 shadow-lg shadow-accent-500/20">
             {profile.display_name.charAt(0).toUpperCase()}
           </div>
-          <h1 className="text-xl font-bold text-white">{profile.display_name}</h1>
+          <h1 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+            <span>{profile.display_name}</span>
+            {profile.is_vip && <VipBadge size="sm" />}
+          </h1>
           <p className="text-sm text-coffee-400">@{profile.username}</p>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-500/10 mt-2">
             <span className="text-xs text-accent-300">{profile.main_subject}</span>
