@@ -300,14 +300,21 @@ export default function Admin() {
                         <button
                           type="button"
                           onClick={() => handleToggleVip(r.user_id, !r.is_vip)}
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                             r.is_vip
-                              ? 'bg-gradient-to-r from-amber-300 to-yellow-400 text-coffee-950 shadow-[0_0_8px_rgba(245,158,11,0.4)] hover:brightness-110'
+                              ? 'bg-gradient-to-b from-amber-200 via-amber-400 to-amber-500 text-coffee-950 border border-amber-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.3),0_0_8px_rgba(245,158,11,0.25)] hover:brightness-110'
                               : 'bg-coffee-800/60 text-coffee-400 hover:text-white hover:bg-coffee-700'
                           }`}
                           title={r.is_vip ? 'Click to remove VIP' : 'Click to grant VIP'}
                         >
-                          {r.is_vip ? '★ VIP' : 'Set VIP'}
+                          {r.is_vip ? (
+                            <>
+                              <Sparkles size={11} className="fill-coffee-950 text-coffee-950" />
+                              VIP
+                            </>
+                          ) : (
+                            'Set VIP'
+                          )}
                         </button>
                       </td>
                     </tr>

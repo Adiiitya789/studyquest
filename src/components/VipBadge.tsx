@@ -6,33 +6,30 @@ interface VipBadgeProps {
   showIcon?: boolean;
 }
 
-export default function VipBadge({ size = 'sm', className = '', showIcon = true }: VipBadgeProps) {
+export default function VipBadge({ size = 'sm', className = '' }: VipBadgeProps) {
   const sizeClasses = {
-    xs: 'text-[8px] px-1 py-0.5 gap-0.5 rounded',
-    sm: 'text-[10px] px-1.5 py-0.5 gap-1 rounded-md',
-    md: 'text-xs px-2 py-0.5 gap-1 rounded-md font-black',
-    lg: 'text-sm px-2.5 py-1 gap-1.5 rounded-lg font-black',
+    xs: 'w-4 h-4 rounded-[4px]',
+    sm: 'w-5 h-5 rounded-[5px]',
+    md: 'w-6 h-6 rounded-md',
+    lg: 'w-7 h-7 rounded-lg',
   };
 
   const iconSizes = {
-    xs: 8,
-    sm: 10,
-    md: 12,
-    lg: 14,
+    xs: 9,
+    sm: 11,
+    md: 13,
+    lg: 16,
   };
 
   return (
     <span
       title="VIP Member"
-      className={`inline-flex items-center font-black uppercase tracking-wider bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 text-coffee-950 shadow-[0_0_12px_rgba(245,158,11,0.5)] border border-amber-200/90 select-none shrink-0 ${sizeClasses[size]} ${className}`}
+      className={`inline-flex items-center justify-center shrink-0 aspect-square select-none bg-gradient-to-b from-amber-200 via-amber-400 to-amber-500 text-coffee-950 border border-amber-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.35),0_0_8px_rgba(245,158,11,0.25),inset_0_1px_0.5px_rgba(255,255,255,0.7)] transition-transform duration-150 hover:scale-110 active:scale-95 ${sizeClasses[size]} ${className}`}
     >
-      {showIcon && (
-        <Sparkles
-          size={iconSizes[size]}
-          className="fill-coffee-950 text-coffee-950 shrink-0"
-        />
-      )}
-      <span>VIP</span>
+      <Sparkles
+        size={iconSizes[size]}
+        className="fill-coffee-950 text-coffee-950 shrink-0"
+      />
     </span>
   );
 }

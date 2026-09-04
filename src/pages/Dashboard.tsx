@@ -132,7 +132,7 @@ export default function Dashboard() {
           <p className="text-sm text-coffee-400">{greeting},</p>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <span>{profile?.display_name ?? 'Student'}</span>
-            {profile?.is_vip && <VipBadge size="xs" />}
+            {profile?.is_vip && <VipBadge size="sm" />}
           </h1>
         </div>
         <CoinBadge />
