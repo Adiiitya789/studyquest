@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -282,9 +283,15 @@ export default function Dashboard() {
       </div>
 
       {/* Manual log modal */}
-      {showManualModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowManualModal(false)}>
-          <div className="glass rounded-2xl p-6 w-full max-w-sm animate-modal-pop border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      {showManualModal && createPortal(
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/75 backdrop-blur-md animate-fade-in" 
+          onClick={() => setShowManualModal(false)}
+        >
+          <div 
+            className="glass rounded-2xl p-6 w-full max-w-sm my-auto animate-modal-pop border border-white/10 shadow-2xl" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Add Manual Log</h3>
               <button onClick={() => setShowManualModal(false)} className="text-coffee-400 hover:text-white btn-press">
@@ -356,7 +363,8 @@ export default function Dashboard() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

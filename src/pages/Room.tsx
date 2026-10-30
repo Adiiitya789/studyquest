@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Play, 
@@ -404,13 +405,13 @@ export default function Room() {
       </div>
 
       {/* Custom Pomodoro Settings Modal */}
-      {showSettingsModal && (
+      {showSettingsModal && createPortal(
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/75 backdrop-blur-md animate-fade-in"
           onClick={() => setShowSettingsModal(false)}
         >
           <div 
-            className="glass-card bg-coffee-950/95 border border-primary-500/30 w-full max-w-md p-6 rounded-3xl shadow-2xl animate-modal-pop relative"
+            className="glass-card bg-coffee-950/95 border border-primary-500/30 w-full max-w-md max-h-[90vh] overflow-y-auto my-auto p-6 rounded-3xl shadow-2xl animate-modal-pop relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
@@ -601,7 +602,8 @@ export default function Room() {
               Save Preferences
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { BADGES } from '@/lib/constants';
@@ -297,9 +298,15 @@ export default function Leaderboard() {
       )}
 
       {/* Public Profile Modal */}
-      {viewingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setViewingUser(null)}>
-          <div className="glass-card w-full max-w-sm overflow-hidden animate-modal-pop relative border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      {viewingUser && createPortal(
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/75 backdrop-blur-md animate-fade-in" 
+          onClick={() => setViewingUser(null)}
+        >
+          <div 
+            className="glass-card w-full max-w-sm max-h-[90vh] overflow-y-auto my-auto animate-modal-pop relative border border-white/10 shadow-2xl" 
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {loadingProfile ? (
               <div className="p-12 text-center text-coffee-400 animate-pulse">Loading profile...</div>
@@ -371,13 +378,20 @@ export default function Leaderboard() {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Create modal */}
-      {showCreate && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowCreate(false)}>
-          <div className="glass rounded-2xl p-6 w-full max-w-sm animate-modal-pop border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      {showCreate && createPortal(
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-black/75 backdrop-blur-md animate-fade-in" 
+          onClick={() => setShowCreate(false)}
+        >
+          <div 
+            className="glass rounded-2xl p-6 w-full max-w-sm my-auto animate-modal-pop border border-white/10 shadow-2xl" 
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Create Squad</h3>
               <button onClick={() => setShowCreate(false)} className="text-coffee-400 hover:text-white btn-press">
@@ -404,7 +418,8 @@ export default function Leaderboard() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
