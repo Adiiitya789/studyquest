@@ -52,7 +52,9 @@ function ProtectedLayout({ children }: { children: ReactNode }) {
       />
       <div className="mx-auto max-w-2xl px-4 pt-6 relative z-10">
         <ThemeSwitcher />
-        {children}
+        <div key={location.pathname} className="animate-enter-up">
+          {children}
+        </div>
 
         {/* Persistent Audio Player — Kept mounted across all route transitions */}
         <div className={isRoom ? 'w-full max-w-md mx-auto mb-6' : 'fixed -left-[99999px] opacity-0 pointer-events-none'}>

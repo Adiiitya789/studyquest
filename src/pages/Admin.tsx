@@ -116,14 +116,14 @@ export default function Admin() {
   }
 
   return (
-    <div className="min-h-screen bg-coffee-950 p-8 animate-fade-in">
+    <div className="min-h-screen bg-coffee-950 p-8 animate-enter-up">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400 mb-8">
           Admin Command Center
         </h1>
 
         {loadError && (
-          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">
+          <div className="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm animate-enter-scale">
             Couldn't load the user directory: {loadError}. Make sure the{' '}
             <code className="text-rose-200">get_admin_dashboard</code> function has been created in Supabase.
           </div>
@@ -131,7 +131,7 @@ export default function Admin() {
 
         {/* Stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="glass p-6 rounded-2xl flex items-center gap-4 border border-primary-500/20 shadow-lg shadow-primary-500/10">
+          <div className="glass interactive-card stagger-1 animate-enter-up p-6 rounded-2xl flex items-center gap-4 border border-primary-500/20 shadow-lg shadow-primary-500/10">
             <div className="p-4 bg-primary-500/20 rounded-xl text-primary-400">
               <Users size={24} />
             </div>
@@ -141,7 +141,7 @@ export default function Admin() {
             </div>
           </div>
 
-          <div className="glass p-6 rounded-2xl flex items-center gap-4 border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
+          <div className="glass interactive-card stagger-2 animate-enter-up p-6 rounded-2xl flex items-center gap-4 border border-yellow-500/20 shadow-lg shadow-yellow-500/10">
             <div className="p-4 bg-yellow-500/20 rounded-xl text-yellow-400">
               <Coins size={24} />
             </div>
@@ -151,7 +151,7 @@ export default function Admin() {
             </div>
           </div>
 
-          <div className="glass p-6 rounded-2xl flex items-center gap-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
+          <div className="glass interactive-card stagger-3 animate-enter-up p-6 rounded-2xl flex items-center gap-4 border border-blue-500/20 shadow-lg shadow-blue-500/10">
             <div className="p-4 bg-blue-500/20 rounded-xl text-blue-400">
               <Clock size={24} />
             </div>
@@ -161,7 +161,7 @@ export default function Admin() {
             </div>
           </div>
 
-          <div className="glass p-6 rounded-2xl flex items-center gap-4 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+          <div className="glass interactive-card stagger-4 animate-enter-up p-6 rounded-2xl flex items-center gap-4 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
             <div className="p-4 bg-emerald-500/20 rounded-xl text-emerald-400">
               <ListChecks size={24} />
             </div>
@@ -173,8 +173,8 @@ export default function Admin() {
         </div>
 
         {/* God Mode Panel */}
-        <div className="glass p-6 rounded-2xl border border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.15)] relative overflow-hidden mb-8">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="glass interactive-card stagger-2 animate-enter-up p-6 rounded-2xl border border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.15)] relative overflow-hidden mb-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-[80px] pointer-events-none animate-breathe" />
 
           <div className="flex items-center gap-3 mb-6 relative">
             <div className="p-2 bg-rose-500/20 rounded-lg text-rose-400 animate-pulse">
@@ -208,7 +208,7 @@ export default function Admin() {
             <button
               type="submit"
               disabled={isGranting}
-              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 text-white font-bold shadow-lg shadow-rose-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 whitespace-nowrap"
+              className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-rose-600 to-orange-500 text-white font-bold shadow-lg shadow-rose-500/25 btn-press hover:brightness-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
             >
               {isGranting ? 'Authorizing...' : 'Apply'}
             </button>
@@ -219,7 +219,7 @@ export default function Admin() {
         </div>
 
         {/* User Directory */}
-        <div className="glass p-6 rounded-2xl border border-white/5">
+        <div className="glass interactive-card stagger-3 animate-enter-up p-6 rounded-2xl border border-white/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
             <h2 className="text-xl font-bold text-white">Every User</h2>
             <div className="relative w-full sm:w-72">
@@ -258,7 +258,7 @@ export default function Admin() {
                   </tr>
                 ) : (
                   filteredRows.map((r) => (
-                    <tr key={r.user_id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]">
+                    <tr key={r.user_id} className="border-b border-white/5 last:border-0 hover:bg-white/[0.04] transition-colors duration-150">
                       <td className="px-2 py-3">
                         <p className="text-white font-medium flex items-center gap-1.5">
                           <span>{r.display_name}</span>
@@ -300,7 +300,7 @@ export default function Admin() {
                         <button
                           type="button"
                           onClick={() => handleToggleVip(r.user_id, !r.is_vip)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                          className={`btn-press inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                             r.is_vip
                               ? 'bg-gradient-to-b from-amber-200 via-amber-400 to-amber-500 text-coffee-950 border border-amber-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.3),0_0_8px_rgba(245,158,11,0.25)] hover:brightness-110'
                               : 'bg-coffee-800/60 text-coffee-400 hover:text-white hover:bg-coffee-700'

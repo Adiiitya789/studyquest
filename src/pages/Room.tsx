@@ -184,7 +184,7 @@ export default function Room() {
           <div className="flex items-center bg-coffee-950/80 p-1 rounded-xl border border-white/10 shadow-inner">
             <button
               onClick={() => setTimerMode('stopwatch')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 btn-press ${
                 timerMode === 'stopwatch'
                   ? 'bg-[#f1d6b9] text-coffee-950 shadow'
                   : 'text-coffee-400 hover:text-white'
@@ -195,7 +195,7 @@ export default function Room() {
             </button>
             <button
               onClick={() => setTimerMode('pomodoro')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 btn-press ${
                 timerMode === 'pomodoro'
                   ? 'bg-[#f1d6b9] text-coffee-950 shadow'
                   : 'text-coffee-400 hover:text-white'
@@ -209,10 +209,10 @@ export default function Room() {
           {timerMode === 'pomodoro' && (
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 rounded-xl bg-coffee-900/80 hover:bg-coffee-800 text-coffee-400 hover:text-white border border-white/10 transition-all"
+              className="p-2 rounded-xl bg-coffee-900/80 hover:bg-coffee-800 text-coffee-400 hover:text-white border border-white/10 transition-all btn-press group"
               title="Custom Pomodoro Settings"
             >
-              <Settings size={18} />
+              <Settings size={18} className="group-hover:rotate-45 transition-transform duration-300" />
             </button>
           )}
         </div>
@@ -220,23 +220,23 @@ export default function Room() {
 
       {/* Pomodoro Phase Selector & Cycle Status (Only in Pomodoro Mode) */}
       {timerMode === 'pomodoro' && (
-        <div className="flex flex-col items-center gap-3 mb-6 animate-fade-in">
+        <div className="flex flex-col items-center gap-3 mb-6 animate-enter-up">
           {/* Phase Tabs */}
           <div className="flex items-center gap-1.5 bg-coffee-950/70 p-1 rounded-2xl border border-white/5 shadow-inner">
             <button
               onClick={() => selectPomoPhase('focus')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 btn-press ${
                 pomoPhase === 'focus'
                   ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
                   : 'text-coffee-400 hover:text-white border border-transparent'
               }`}
             >
-              <Flame size={14} className={pomoPhase === 'focus' ? 'text-primary-300' : ''} />
+              <Flame size={14} className={pomoPhase === 'focus' ? 'text-primary-300 animate-pulse' : ''} />
               <span>Focus ({pomoSettings.focusMinutes}m)</span>
             </button>
             <button
               onClick={() => selectPomoPhase('shortBreak')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 btn-press ${
                 pomoPhase === 'shortBreak'
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                   : 'text-coffee-400 hover:text-white border border-transparent'
@@ -247,7 +247,7 @@ export default function Room() {
             </button>
             <button
               onClick={() => selectPomoPhase('longBreak')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 btn-press ${
                 pomoPhase === 'longBreak'
                   ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                   : 'text-coffee-400 hover:text-white border border-transparent'
@@ -268,9 +268,9 @@ export default function Room() {
                 return (
                   <span
                     key={idx}
-                    className={`w-2 h-2 rounded-full transition-all ${
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
                       isCurrent
-                        ? 'bg-primary-400 scale-125 ring-2 ring-primary-400/40'
+                        ? 'bg-primary-400 scale-125 ring-2 ring-primary-400/40 animate-pulse'
                         : isPassed
                         ? 'bg-primary-500/50'
                         : 'bg-coffee-800'
@@ -285,7 +285,7 @@ export default function Room() {
 
       {/* Main Center Circular Timer Display */}
       <div className="flex-1 flex flex-col items-center justify-center mb-6">
-        <div className={`relative w-64 h-64 rounded-full flex items-center justify-center mb-6 transition-all duration-500 ${running ? 'animate-pulse-glow' : ''}`}>
+        <div className={`relative w-64 h-64 rounded-full flex items-center justify-center mb-6 transition-all duration-700 ${running ? 'animate-pulse-glow' : ''}`}>
           <div className="absolute inset-0 rounded-full border-2 border-coffee-800/80" />
           
           <svg className="absolute inset-0 -rotate-90" viewBox="0 0 256 256">
@@ -352,7 +352,7 @@ export default function Room() {
           {/* Reset / Restart Phase button */}
           <button
             onClick={resetTimer}
-            className="w-12 h-12 rounded-full bg-coffee-800/80 hover:bg-coffee-700 text-coffee-300 hover:text-white border border-white/5 flex items-center justify-center transition-all active:scale-95"
+            className="w-12 h-12 rounded-full bg-coffee-800/80 hover:bg-coffee-700 text-coffee-300 hover:text-white border border-white/5 flex items-center justify-center transition-all btn-press"
             title="Reset timer"
           >
             <RotateCcw size={18} />
@@ -361,7 +361,7 @@ export default function Room() {
           {/* Primary Play / Pause Button */}
           <button
             onClick={toggleTimer}
-            className="w-16 h-16 rounded-full bg-[#f1d6b9] text-coffee-950 flex items-center justify-center shadow-xl shadow-black/30 hover:scale-105 active:scale-95 transition-all"
+            className="w-16 h-16 rounded-full bg-[#f1d6b9] text-coffee-950 flex items-center justify-center shadow-xl shadow-black/30 btn-press-primary"
             title={running ? 'Pause timer' : 'Start timer'}
           >
             {running ? <Pause size={28} fill="currentColor" /> : <Play size={28} fill="currentColor" className="ml-1" />}
@@ -371,7 +371,7 @@ export default function Room() {
           {timerMode === 'pomodoro' ? (
             <button
               onClick={skipPomoPhase}
-              className="w-12 h-12 rounded-full bg-coffee-800/80 hover:bg-coffee-700 text-coffee-300 hover:text-white border border-white/5 flex items-center justify-center transition-all active:scale-95"
+              className="w-12 h-12 rounded-full bg-coffee-800/80 hover:bg-coffee-700 text-coffee-300 hover:text-white border border-white/5 flex items-center justify-center transition-all btn-press"
               title="Skip to next phase"
             >
               <SkipForward size={18} />
@@ -380,7 +380,7 @@ export default function Room() {
             <button
               onClick={handleEnd}
               disabled={saving || seconds < 60}
-              className="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center hover:bg-rose-500/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100"
+              className="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center hover:bg-rose-500/30 transition-all disabled:opacity-30 btn-press"
               title="End session & claim coins"
             >
               <Square size={20} fill="currentColor" />
@@ -393,7 +393,7 @@ export default function Room() {
           <button
             onClick={handleEnd}
             disabled={saving || totalCoinsEarned < 1}
-            className="mt-2 px-5 py-2 rounded-xl bg-coffee-900/80 hover:bg-rose-500/20 text-coffee-300 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-40"
+            className="mt-2 px-5 py-2 rounded-xl bg-coffee-900/80 hover:bg-rose-500/20 text-coffee-300 hover:text-rose-300 border border-white/10 hover:border-rose-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all disabled:opacity-40 btn-press"
           >
             <Square size={14} fill="currentColor" />
             <span>End Session & Save ({totalCoinsEarned} coins)</span>
@@ -410,7 +410,7 @@ export default function Room() {
           onClick={() => setShowSettingsModal(false)}
         >
           <div 
-            className="glass-card bg-coffee-950/95 border border-primary-500/30 w-full max-w-md p-6 rounded-3xl shadow-2xl animate-slide-up relative"
+            className="glass-card bg-coffee-950/95 border border-primary-500/30 w-full max-w-md p-6 rounded-3xl shadow-2xl animate-modal-pop relative"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
@@ -422,7 +422,7 @@ export default function Room() {
               </div>
               <button 
                 onClick={() => setShowSettingsModal(false)}
-                className="text-coffee-400 hover:text-white transition-colors"
+                className="text-coffee-400 hover:text-white transition-colors btn-press"
               >
                 <X size={20} />
               </button>
@@ -435,7 +435,7 @@ export default function Room() {
                 <button
                   type="button"
                   onClick={() => applyPreset(25, 5, 15)}
-                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center"
+                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center interactive-card"
                 >
                   <p className="font-bold text-white">Classic</p>
                   <p className="text-[10px] text-coffee-400">25 / 5 / 15m</p>
@@ -443,7 +443,7 @@ export default function Room() {
                 <button
                   type="button"
                   onClick={() => applyPreset(50, 10, 30)}
-                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center"
+                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center interactive-card"
                 >
                   <p className="font-bold text-white">Deep Work</p>
                   <p className="text-[10px] text-coffee-400">50 / 10 / 30m</p>
@@ -451,7 +451,7 @@ export default function Room() {
                 <button
                   type="button"
                   onClick={() => applyPreset(15, 3, 10)}
-                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center"
+                  className="py-2 px-2.5 rounded-xl bg-coffee-900 hover:bg-coffee-800 text-xs font-medium text-coffee-200 border border-white/5 hover:border-primary-500/30 transition-all text-center interactive-card"
                 >
                   <p className="font-bold text-white">Sprint</p>
                   <p className="text-[10px] text-coffee-400">15 / 3 / 10m</p>
@@ -471,7 +471,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftFocus((prev) => Math.max(1, prev - 5))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Minus size={14} />
                   </button>
@@ -481,7 +481,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftFocus((prev) => Math.min(180, prev + 5))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Plus size={14} />
                   </button>
@@ -498,7 +498,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftShortBreak((prev) => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Minus size={14} />
                   </button>
@@ -508,7 +508,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftShortBreak((prev) => Math.min(60, prev + 1))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Plus size={14} />
                   </button>
@@ -525,7 +525,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftLongBreak((prev) => Math.max(1, prev - 5))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Minus size={14} />
                   </button>
@@ -535,7 +535,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftLongBreak((prev) => Math.min(90, prev + 5))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Plus size={14} />
                   </button>
@@ -552,7 +552,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftInterval((prev) => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Minus size={14} />
                   </button>
@@ -562,7 +562,7 @@ export default function Room() {
                   <button
                     type="button"
                     onClick={() => setDraftInterval((prev) => Math.min(12, prev + 1))}
-                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all"
+                    className="w-8 h-8 rounded-lg bg-coffee-800 hover:bg-coffee-700 text-white flex items-center justify-center transition-all btn-press"
                   >
                     <Plus size={14} />
                   </button>
@@ -578,7 +578,7 @@ export default function Room() {
                   type="checkbox"
                   checked={draftAutoBreaks}
                   onChange={(e) => setDraftAutoBreaks(e.target.checked)}
-                  className="rounded bg-coffee-800 border-white/10 text-primary-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                  className="rounded bg-coffee-800 border-white/10 text-primary-500 focus:ring-0 w-4 h-4 cursor-pointer accent-primary-500 transition-transform active:scale-90"
                 />
               </label>
               <label className="flex items-center justify-between cursor-pointer py-1">
@@ -587,7 +587,7 @@ export default function Room() {
                   type="checkbox"
                   checked={draftAutoFocus}
                   onChange={(e) => setDraftAutoFocus(e.target.checked)}
-                  className="rounded bg-coffee-800 border-white/10 text-primary-500 focus:ring-0 w-4 h-4 cursor-pointer"
+                  className="rounded bg-coffee-800 border-white/10 text-primary-500 focus:ring-0 w-4 h-4 cursor-pointer accent-primary-500 transition-transform active:scale-90"
                 />
               </label>
             </div>
@@ -595,7 +595,7 @@ export default function Room() {
             {/* Save Button */}
             <button
               onClick={handleSaveSettings}
-              className="w-full py-3.5 rounded-2xl bg-[#f1d6b9] text-coffee-950 font-bold hover:brightness-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+              className="w-full py-3.5 rounded-2xl bg-[#f1d6b9] text-coffee-950 font-bold flex items-center justify-center gap-2 shadow-lg btn-press-primary"
             >
               <Check size={18} />
               Save Preferences

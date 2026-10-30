@@ -129,8 +129,8 @@ export default function Stats() {
   }, [chartData]);
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
+    <div>
+      <div className="flex items-center gap-3 mb-6 animate-enter-up stagger-1">
         <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300">
           <BarChart3 size={22} />
         </div>
@@ -141,26 +141,26 @@ export default function Stats() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
-        <div className="glass-card p-4 text-center">
-          <Clock size={20} className="mx-auto text-primary-300 mb-1" />
+      <div className="grid grid-cols-3 gap-3 mb-6 animate-enter-up stagger-2">
+        <div className="glass-card p-4 text-center interactive-card group">
+          <Clock size={20} className="mx-auto text-primary-300 mb-1 group-hover:scale-110 transition-transform duration-300" />
           <p className="text-xl font-bold text-white tabular-nums">{totalHours.toFixed(1)}</p>
           <p className="text-xs text-coffee-400">Total Hours</p>
         </div>
-        <div className="glass-card p-4 text-center">
-          <Flame size={20} className="mx-auto text-orange-400 mb-1" />
+        <div className="glass-card p-4 text-center interactive-card group">
+          <Flame size={20} className="mx-auto text-orange-400 mb-1 animate-pulse" />
           <p className="text-xl font-bold text-white tabular-nums">{streak}</p>
           <p className="text-xs text-coffee-400">Day Streak</p>
         </div>
-        <div className="glass-card p-4 text-center">
-          <CheckCircle2 size={20} className="mx-auto text-green-400 mb-1" />
+        <div className="glass-card p-4 text-center interactive-card group">
+          <CheckCircle2 size={20} className="mx-auto text-green-400 mb-1 group-hover:scale-110 transition-transform duration-300" />
           <p className="text-xl font-bold text-white tabular-nums">{BADGES.filter((b) => totalHours >= b.hours).length}</p>
           <p className="text-xs text-coffee-400">Badges</p>
         </div>
       </div>
 
       {/* Progress Bar Chart with Timeframe Switcher */}
-      <div className="glass-card p-5 mb-5">
+      <div className="glass-card p-5 mb-5 interactive-card animate-enter-up stagger-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <p className="text-sm font-semibold text-white">
@@ -172,10 +172,10 @@ export default function Stats() {
           </div>
 
           {/* Timeframe Toggle Buttons */}
-          <div className="flex items-center bg-coffee-950/70 p-1 rounded-xl border border-white/5 self-start sm:self-auto">
+          <div className="flex items-center bg-coffee-950/70 p-1 rounded-xl border border-white/5 self-start sm:self-auto shadow-inner">
             <button
               onClick={() => setTimeframe('week')}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all btn-press ${
                 timeframe === 'week'
                   ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
                   : 'text-coffee-400 hover:text-white'
@@ -185,7 +185,7 @@ export default function Stats() {
             </button>
             <button
               onClick={() => setTimeframe('month')}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all btn-press ${
                 timeframe === 'month'
                   ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
                   : 'text-coffee-400 hover:text-white'
@@ -195,7 +195,7 @@ export default function Stats() {
             </button>
             <button
               onClick={() => setTimeframe('lifetime')}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all btn-press ${
                 timeframe === 'lifetime'
                   ? 'bg-[#f1d6b9] text-coffee-950 shadow-sm'
                   : 'text-coffee-400 hover:text-white'
@@ -228,7 +228,7 @@ export default function Stats() {
       </div>
 
       {/* Pie chart: Hours by Subject */}
-      <div className="glass-card p-5 mb-5">
+      <div className="glass-card p-5 mb-5 interactive-card animate-enter-up stagger-4">
         <p className="text-sm font-semibold text-white mb-4">Hours by Subject</p>
         {subjectData.length === 0 ? (
           <p className="text-sm text-coffee-400 py-12 text-center">No data yet. Start studying!</p>
@@ -269,7 +269,7 @@ export default function Stats() {
       </div>
 
       {/* Badges */}
-      <div className="glass-card p-5">
+      <div className="glass-card p-5 interactive-card animate-enter-up stagger-5">
         <p className="text-sm font-semibold text-white mb-4">Badges</p>
         <div className="grid grid-cols-3 gap-3">
           {BADGES.map((badge) => {
@@ -278,20 +278,20 @@ export default function Stats() {
             return (
               <div
                 key={badge.id}
-                className={`p-4 rounded-xl text-center transition-all ${
+                className={`p-4 rounded-xl text-center transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] ${
                   unlocked
-                    ? 'bg-primary-500/10 border border-primary-500/20'
-                    : 'bg-coffee-800/30 border border-white/5'
+                    ? 'bg-primary-500/10 border border-primary-500/20 shadow-sm'
+                    : 'bg-coffee-800/30 border border-white/5 opacity-60'
                 }`}
               >
-                <div className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 ${unlocked ? 'bg-primary-500/20' : 'bg-coffee-800'}`}>
+                <div className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 transition-transform ${unlocked ? 'bg-primary-500/20' : 'bg-coffee-800'}`}>
                   {unlocked ? (
                     <Icon size={24} className="text-primary-300" />
                   ) : (
                     <Lock size={24} className="text-coffee-600" />
                   )}
                 </div>
-                <p className={`text-xs font-medium ${unlocked ? 'text-white' : 'text-coffee-500'}`}>{badge.name}</p>
+                <p className={`text-xs font-medium ${unlocked ? 'text-white font-semibold' : 'text-coffee-500'}`}>{badge.name}</p>
                 <p className={`text-[10px] ${unlocked ? 'text-primary-300' : 'text-coffee-600'}`}>{badge.hours}h</p>
               </div>
             );

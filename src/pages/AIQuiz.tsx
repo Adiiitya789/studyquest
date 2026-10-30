@@ -114,11 +114,11 @@ export default function AIQuiz() {
   }
 
   return (
-    <div className="animate-fade-in max-w-2xl mx-auto pb-20">
+    <div className="max-w-2xl mx-auto pb-20">
       
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-6 animate-enter-up stagger-1">
         <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300">
-          <Brain size={22} />
+          <Brain size={22} className="animate-pulse" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-white">AI Loot Quiz</h1>
@@ -127,24 +127,26 @@ export default function AIQuiz() {
       </div>
 
       {!quiz ? (
-        <div className="glass-card p-6">
+        <div className="glass-card p-6 interactive-card animate-enter-up stagger-2">
           <label className="block text-sm font-semibold text-white mb-2">Paste your study notes here:</label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="E.g., Mitochondria is the powerhouse of the cell..."
-            className="w-full h-48 px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50 resize-none mb-4"
+            className="w-full h-48 px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/30 transition-all resize-none mb-4"
           />
           
-          {error && <p className="text-sm text-rose-400 mb-4">{error}</p>}
+          {error && <p className="text-sm text-rose-400 mb-4 animate-fade-in">{error}</p>}
 
           <button
             onClick={generateQuiz}
             disabled={loading}
-            className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-[#f1d6b9] text-coffee-900 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
+            className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-[#f1d6b9] text-coffee-900 disabled:opacity-50 btn-press-primary"
           >
             {loading ? (
-              <span className="animate-pulse">AI is reading your notes...</span>
+              <span className="animate-pulse flex items-center gap-2">
+                <Brain size={18} className="animate-spin" /> AI is reading your notes...
+              </span>
             ) : (
               <>
                 <Sparkles size={20} /> Generate Loot Quiz
@@ -156,7 +158,11 @@ export default function AIQuiz() {
         <div className="space-y-6">
           {/* The Quiz Render */}
           {quiz.map((q, qIndex) => (
-            <div key={qIndex} className="glass-card p-6">
+            <div 
+              key={qIndex} 
+              className="glass-card p-6 interactive-card animate-enter-up"
+              style={{ animationDelay: `${qIndex * 100}ms` }}
+            >
               <h3 className="text-lg font-medium text-white mb-4">{qIndex + 1}. {q.question}</h3>
               <div className="space-y-2">
                 {q.options.map((opt, optIndex) => {
@@ -164,16 +170,16 @@ export default function AIQuiz() {
                   const isCorrect = optIndex === q.correctIndex;
                   
                   // Styling logic for after submission
-                  let btnClass = "border-white/5 text-coffee-300 hover:bg-white/5";
-                  if (isSelected) btnClass = "border-primary-500 bg-primary-500/10 text-primary-300";
+                  let btnClass = "border-white/5 text-coffee-300 hover:bg-white/5 hover:border-white/10";
+                  if (isSelected) btnClass = "border-primary-500 bg-primary-500/10 text-primary-300 shadow-sm";
                   
                   if (submitted) {
                     if (isCorrect) {
-                      btnClass = "border-emerald-500 bg-emerald-500/10 text-emerald-400";
+                      btnClass = "border-emerald-500 bg-emerald-500/15 text-emerald-300";
                     } else if (isSelected && !isCorrect) {
-                      btnClass = "border-rose-500 bg-rose-500/10 text-rose-400";
+                      btnClass = "border-rose-500 bg-rose-500/15 text-rose-300";
                     } else {
-                      btnClass = "border-white/5 text-coffee-500 opacity-50";
+                      btnClass = "border-white/5 text-coffee-500 opacity-40";
                     }
                   }
 
@@ -181,11 +187,11 @@ export default function AIQuiz() {
                     <button
                       key={optIndex}
                       onClick={() => handleSelectOption(qIndex, optIndex)}
-                      className={`w-full text-left px-4 py-3 rounded-xl border transition-all flex items-center justify-between ${btnClass}`}
+                      className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-200 flex items-center justify-between btn-press ${btnClass}`}
                     >
-                      <span>{opt}</span>
-                      {submitted && isCorrect && <CheckCircle size={18} className="text-emerald-500" />}
-                      {submitted && isSelected && !isCorrect && <XCircle size={18} className="text-rose-500" />}
+                      <span className="text-sm">{opt}</span>
+                      {submitted && isCorrect && <CheckCircle size={18} className="text-emerald-400 check-pop shrink-0 ml-2" />}
+                      {submitted && isSelected && !isCorrect && <XCircle size={18} className="text-rose-400 check-pop shrink-0 ml-2" />}
                     </button>
                   );
                 })}
@@ -193,17 +199,17 @@ export default function AIQuiz() {
             </div>
           ))}
 
-          {error && <p className="text-sm text-rose-400 text-center">{error}</p>}
+          {error && <p className="text-sm text-rose-400 text-center animate-fade-in">{error}</p>}
 
           {!submitted ? (
             <button
               onClick={submitQuiz}
-              className="w-full py-4 rounded-xl bg-[#f1d6b9] text-coffee-900 font-bold hover:brightness-95 transition-all"
+              className="w-full py-4 rounded-xl bg-[#f1d6b9] text-coffee-900 font-bold btn-press-primary"
             >
               Submit Answers
             </button>
           ) : (
-            <div className="glass-card p-6 text-center animate-slide-up border-primary-500/30">
+            <div className="glass-card p-6 text-center animate-modal-pop border-primary-500/30">
               <h2 className="text-2xl font-bold text-white mb-2">Quiz Complete!</h2>
               
               {Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length > 0 ? (
@@ -211,8 +217,8 @@ export default function AIQuiz() {
                   <p className="text-emerald-400 font-medium mb-4">
                     You got {Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length} / {quiz.length} correct!
                   </p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-lg mb-4">
-                    <Coins size={20} /> +{Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length} Coin{Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length > 1 ? 's' : ''} Added!
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-lg mb-4 animate-enter-scale">
+                    <Coins size={20} className="animate-bounce" /> +{Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length} Coin{Object.values(userAnswers).filter((ans, i) => ans === quiz[i].correctIndex).length > 1 ? 's' : ''} Added!
                   </div>
                 </div>
               ) : (
@@ -221,7 +227,7 @@ export default function AIQuiz() {
               
               <button
                 onClick={() => setQuiz(null)}
-                className="px-6 py-2 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-all"
+                className="px-6 py-2 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-all btn-press"
               >
                 Try Another Topic
               </button>

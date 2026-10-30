@@ -63,7 +63,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
   };
 
   return (
-    <div className={`glass-card p-5 rounded-2xl w-full max-w-md mx-auto shadow-2xl transition-all animate-fade-in border border-white/5 ${!isEmbedded ? 'bg-coffee-900/95' : ''}`}>
+    <div className={`glass-card p-5 rounded-2xl w-full max-w-md mx-auto shadow-2xl transition-all animate-enter-up border border-white/5 ${!isEmbedded ? 'bg-coffee-900/95' : ''}`}>
       {/* Top Header & Import Button */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
             setShowImportForm(!showImportForm);
             setImportError('');
           }}
-          className="flex items-center gap-1 text-xs font-medium text-primary-300 hover:text-primary-200 bg-primary-500/10 hover:bg-primary-500/20 px-3 py-1.5 rounded-xl border border-primary-500/20 transition-all"
+          className="btn-press flex items-center gap-1 text-xs font-medium text-primary-300 hover:text-primary-200 bg-primary-500/10 hover:bg-primary-500/20 px-3 py-1.5 rounded-xl border border-primary-500/20 transition-all"
         >
           <Plus size={14} /> Import Link
         </button>
@@ -96,7 +96,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
       <div className="flex p-1 bg-coffee-800/50 rounded-xl mb-4">
         <button
           onClick={() => setMode('ambient')}
-          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold btn-press transition-all ${
             mode === 'ambient'
               ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20'
               : 'text-coffee-400 hover:text-white'
@@ -106,7 +106,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
         </button>
         <button
           onClick={() => setMode('spotify')}
-          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold btn-press transition-all ${
             mode === 'spotify'
               ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20'
               : 'text-coffee-400 hover:text-white'
@@ -116,7 +116,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
         </button>
         <button
           onClick={() => setMode('youtube')}
-          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex-1 py-2.5 rounded-lg text-xs font-semibold btn-press transition-all ${
             mode === 'youtube'
               ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20'
               : 'text-coffee-400 hover:text-white'
@@ -128,7 +128,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
 
       {/* Import Link Form Modal */}
       {showImportForm && (
-        <form onSubmit={onImportSubmit} className="glass p-4 rounded-xl mb-4 border border-primary-500/20 animate-slide-up space-y-3 bg-coffee-900/90">
+        <form onSubmit={onImportSubmit} className="glass p-4 rounded-xl mb-4 border border-primary-500/20 animate-enter-scale space-y-3 bg-coffee-900/90">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-white flex items-center gap-1.5">
               <Sparkles size={14} className="text-primary-300" /> Import Custom Playlist / Link
@@ -155,14 +155,14 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
             />
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl bg-[#f1d6b9] text-coffee-900 text-xs font-semibold hover:brightness-95 active:scale-95 transition-all shadow-md shadow-black/20"
+              className="btn-press px-4 py-2 rounded-xl bg-[#f1d6b9] text-coffee-900 text-xs font-semibold hover:brightness-95 transition-all shadow-md shadow-black/20"
             >
               Add
             </button>
           </div>
 
           {importError && (
-            <p className="text-[11px] text-rose-400 animate-fade-in font-medium">{importError}</p>
+            <p className="text-[11px] text-rose-400 animate-enter-scale font-medium">{importError}</p>
           )}
         </form>
       )}
@@ -194,22 +194,22 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
                   className={`rounded-2xl border p-3.5 transition-all duration-300 ${
                     isPlaying
                       ? 'border-primary-500/40 bg-primary-500/15 shadow-lg shadow-primary-500/5'
-                      : 'border-white/5 bg-coffee-800/40 hover:bg-coffee-800/70'
+                      : 'border-white/5 bg-coffee-800/40 hover:bg-coffee-800/70 hover:-translate-y-0.5'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => toggleAmbientTrack(id)}
-                      className="flex items-center gap-3 flex-1 text-left select-none"
+                      className="flex items-center gap-3 flex-1 text-left select-none group"
                     >
                       <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
-                        isPlaying ? 'bg-primary-500/25 text-primary-300' : 'bg-coffee-700/60 text-coffee-400'
+                        isPlaying ? 'bg-primary-500/25 text-primary-300' : 'bg-coffee-700/60 text-coffee-400 group-hover:text-white'
                       }`}>
                         <Icon size={18} className={isPlaying ? 'animate-pulse' : ''} />
                       </div>
                       <div>
-                        <p className={`text-xs font-semibold ${isPlaying ? 'text-white' : 'text-coffee-300'}`}>
+                        <p className={`text-xs font-semibold ${isPlaying ? 'text-white' : 'text-coffee-300 group-hover:text-white'}`}>
                           {label}
                         </p>
                         <p className="text-[10px] text-coffee-400">
@@ -221,7 +221,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
                     <button
                       type="button"
                       onClick={() => toggleAmbientTrack(id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                      className={`btn-press px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                         isPlaying
                           ? 'bg-[#f1d6b9] text-coffee-950 shadow'
                           : 'bg-coffee-700/60 text-coffee-300 hover:text-white'
@@ -298,7 +298,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
                 <button
                   key={preset.id}
                   onClick={() => setActiveSpotifyEmbed(preset.embedUrl)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+                  className={`btn-press px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
                     isActive
                       ? 'bg-primary-500/20 border-primary-500/30 text-primary-300'
                       : 'bg-coffee-800/40 border-white/5 text-coffee-400 hover:text-white'
@@ -423,7 +423,7 @@ export default function SoundPlayer({ isEmbedded = true }: SoundPlayerProps) {
                 <button
                   key={preset.id}
                   onClick={() => setActiveYouTubeEmbed(preset.embedUrl)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
+                  className={`btn-press px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all border ${
                     isActive
                       ? 'bg-primary-500/20 border-primary-500/30 text-primary-300'
                       : 'bg-coffee-800/40 border-white/5 text-coffee-400 hover:text-white'

@@ -15,23 +15,26 @@ export default function StudyingNow() {
   }, []);
 
   return (
-    <div className="glass-card bg-coffee-900/60 backdrop-blur-md p-4 mb-8 border border-white/5 w-full max-w-md mx-auto animate-fade-in">
+    <div className="glass-card interactive-card bg-coffee-900/60 backdrop-blur-md p-4 mb-8 border border-white/5 w-full max-w-md mx-auto animate-enter-up">
       <div className="flex items-center gap-2 mb-3">
         <Users size={16} className="text-coffee-400" />
         <p className="text-sm font-semibold text-white">Studying Now</p>
         <span className="ml-auto text-xs text-coffee-400">{onlineUsers.length} active this week</span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {onlineUsers.length === 0 ? (
           <p className="text-xs text-coffee-500 py-2">No one else is active right now.</p>
         ) : (
           onlineUsers.map((u, i) => (
-            <div key={u.user_id} className="flex items-center gap-3 py-1">
+            <div key={u.user_id} className="flex items-center gap-3 py-1.5 px-2 rounded-xl transition-colors duration-200 hover:bg-white/[0.04]">
               <div className="relative">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">
                   {u.display_name.charAt(0).toUpperCase()}
                 </div>
-                <Circle size={8} className="absolute -bottom-0.5 -right-0.5 text-green-400 fill-green-400" />
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
+                </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-white truncate drop-shadow-sm flex items-center gap-1.5">

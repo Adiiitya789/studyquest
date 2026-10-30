@@ -9,10 +9,10 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, subtitle, icon, right }: PageHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-6 animate-fade-in">
+    <div className="flex items-start justify-between mb-6 animate-enter-up">
       <div className="flex items-center gap-3">
         {icon && (
-          <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300">
+          <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300 transition-transform duration-300 hover:scale-105">
             {icon}
           </div>
         )}

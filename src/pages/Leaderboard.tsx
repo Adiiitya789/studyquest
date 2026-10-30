@@ -136,8 +136,8 @@ export default function Leaderboard() {
   const hasCrystal = viewingPerks.includes('crystal_badge');
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
+    <div>
+      <div className="flex items-center gap-3 mb-6 animate-enter-up stagger-1">
         <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300">
           <Trophy size={22} />
         </div>
@@ -148,19 +148,19 @@ export default function Leaderboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex p-1 bg-coffee-800/50 rounded-xl mb-5">
+      <div className="flex p-1 bg-coffee-800/50 rounded-xl mb-5 animate-enter-up stagger-2 shadow-inner">
         <button
           onClick={() => setTab('global')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${
-            tab === 'global' ? 'bg-[#f1d6b9] text-coffee-900' : 'text-coffee-400'
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 btn-press ${
+            tab === 'global' ? 'bg-[#f1d6b9] text-coffee-900 shadow-md' : 'text-coffee-400 hover:text-white'
           }`}
         >
           <Trophy size={16} /> Global
         </button>
         <button
           onClick={() => setTab('squads')}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 ${
-            tab === 'squads' ? 'bg-[#f1d6b9] text-coffee-900' : 'text-coffee-400'
+          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-1.5 btn-press ${
+            tab === 'squads' ? 'bg-[#f1d6b9] text-coffee-900 shadow-md' : 'text-coffee-400 hover:text-white'
           }`}
         >
           <Users size={16} /> My Squads
@@ -168,16 +168,16 @@ export default function Leaderboard() {
       </div>
 
       {tab === 'global' && (
-        <>
+        <div className="animate-enter-up stagger-3">
           <div className="flex gap-2 mb-4">
             {(['week', 'month', 'all'] as Timeframe[]).map((tf) => (
               <button
                 key={tf}
                 onClick={() => setTimeframe(tf)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all btn-press ${
                   timeframe === tf
-                    ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
-                    : 'bg-coffee-800/30 text-coffee-400 border border-white/5'
+                    ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30 shadow-sm'
+                    : 'bg-coffee-800/30 text-coffee-400 border border-white/5 hover:text-white'
                 }`}
               >
                 {tf === 'week' ? 'This Week' : tf === 'month' ? 'This Month' : 'All Time'}
@@ -193,12 +193,12 @@ export default function Leaderboard() {
                 <div
                   key={entry.user_id}
                   onClick={() => openProfile(entry.user_id, entry.total_hours)}
-                  className={`glass-card px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-white/5 transition-all ${entry.user_id === user?.id ? 'border-primary-500/30' : ''}`}
+                  className={`glass-card px-4 py-3 flex items-center gap-3 cursor-pointer interactive-card transition-all ${entry.user_id === user?.id ? 'border-primary-500/40 bg-primary-500/5' : ''}`}
                 >
                   <span className={`text-sm font-bold w-6 ${i < 3 ? 'text-amber-400' : 'text-coffee-500'}`}>
                     {i < 3 ? ['🥇', '🥈', '🥉'][i] : `#${i + 1}`}
                   </span>
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-coffee-600 to-coffee-700 flex items-center justify-center text-sm font-bold text-white">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-coffee-600 to-coffee-700 flex items-center justify-center text-sm font-bold text-white shadow-inner">
                     {entry.display_name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -212,20 +212,20 @@ export default function Leaderboard() {
               ))
             )}
           </div>
-        </>
+        </div>
       )}
 
       {tab === 'squads' && (
-        <>
+        <div className="animate-enter-up stagger-3">
           <div className="mb-4">
             <div className="flex gap-2">
               <button
                 onClick={() => setShowCreate(true)}
-                className="flex-1 py-2.5 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-primary-500/20 transition-all"
+                className="flex-1 py-2.5 rounded-xl bg-primary-500/10 border border-primary-500/20 text-primary-300 text-sm font-medium flex items-center justify-center gap-1.5 hover:bg-primary-500/20 transition-all btn-press"
               >
                 <Plus size={16} /> Create Squad
               </button>
-              <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-coffee-800/50 border border-white/5 relative">
+              <div className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-coffee-800/50 border border-white/5 relative focus-within:border-primary-500/40 transition-colors">
                 <Hash size={16} className="text-coffee-500" />
                 <input
                   type="text"
@@ -239,7 +239,7 @@ export default function Leaderboard() {
                   maxLength={6}
                   className="flex-1 bg-transparent text-white placeholder-coffee-500 text-sm focus:outline-none uppercase"
                 />
-                <button onClick={joinGroup} className="text-primary-300 hover:text-primary-200">
+                <button onClick={joinGroup} className="text-primary-300 hover:text-primary-200 btn-press">
                   <Plus size={16} />
                 </button>
               </div>
@@ -248,14 +248,14 @@ export default function Leaderboard() {
           </div>
 
           {groups.length === 0 ? (
-            <div className="glass-card p-8 text-center">
+            <div className="glass-card p-8 text-center interactive-card">
               <Users size={32} className="mx-auto text-coffee-600 mb-2" />
               <p className="text-sm text-coffee-400">No squads yet. Create one or join with a code!</p>
             </div>
           ) : (
             <div className="space-y-3">
               {groups.map((group) => (
-                <div key={group.id} className="glass-card p-4">
+                <div key={group.id} className="glass-card p-4 interactive-card">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <div className="w-9 h-9 rounded-lg bg-accent-500/10 flex items-center justify-center">
@@ -268,17 +268,17 @@ export default function Leaderboard() {
                         </p>
                       </div>
                     </div>
-                    {group.owner_id === user?.id && <Crown size={16} className="text-amber-400" />}
+                    {group.owner_id === user?.id && <Crown size={16} className="text-amber-400 animate-pulse" />}
                   </div>
                   <div className="space-y-1.5">
                     {(groupLeaderboard[group.id] ?? []).map((entry, i) => (
                       <div 
                         key={entry.user_id} 
                         onClick={() => openProfile(entry.user_id, entry.total_hours)}
-                        className="flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-white/5 cursor-pointer transition-all"
+                        className="flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-white/5 cursor-pointer transition-all btn-press"
                       >
                         <span className={`text-xs font-bold w-5 ${i < 3 ? 'text-amber-400' : 'text-coffee-500'}`}>#{i + 1}</span>
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-coffee-600 to-coffee-700 flex items-center justify-center text-xs font-bold text-white">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-coffee-600 to-coffee-700 flex items-center justify-center text-xs font-bold text-white shadow-inner">
                           {entry.display_name.charAt(0)}
                         </div>
                         <span className="flex-1 text-sm text-white truncate flex items-center gap-1.5">
@@ -293,33 +293,33 @@ export default function Leaderboard() {
               ))}
             </div>
           )}
-        </>
+        </div>
       )}
 
       {/* Public Profile Modal */}
       {viewingUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setViewingUser(null)}>
-          <div className="glass-card w-full max-w-sm overflow-hidden animate-slide-up relative" onClick={(e) => e.stopPropagation()}>
+          <div className="glass-card w-full max-w-sm overflow-hidden animate-modal-pop relative border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             
             {loadingProfile ? (
-              <div className="p-12 text-center text-coffee-400">Loading profile...</div>
+              <div className="p-12 text-center text-coffee-400 animate-pulse">Loading profile...</div>
             ) : (
               <>
-                <button onClick={() => setViewingUser(null)} className="absolute top-4 right-4 z-10 text-coffee-400 hover:text-white bg-coffee-900/50 rounded-full p-1">
+                <button onClick={() => setViewingUser(null)} className="absolute top-4 right-4 z-10 text-coffee-400 hover:text-white bg-coffee-900/50 rounded-full p-1 btn-press">
                   <X size={20} />
                 </button>
 
                 <div className={`p-6 text-center relative overflow-hidden ${viewingPerks.includes('dark_mode') ? 'bg-coffee-950/90' : ''}`}>
                   {/* Background Glows */}
-                  <div className={`absolute -top-20 -left-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-emerald-500/20' : 'bg-primary-500/10'}`} />
-                  <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-teal-500/20' : 'bg-accent-500/10'}`} />
+                  <div className={`absolute -top-20 -left-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-emerald-500/20' : 'bg-primary-500/10'} animate-breathe`} />
+                  <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-teal-500/20' : 'bg-accent-500/10'} animate-breathe`} />
                   
                   <div className="relative">
                     {/* Avatar */}
-                    <div className={`w-24 h-24 rounded-2xl flex items-center justify-center text-3xl font-bold text-white mx-auto mb-4
+                    <div className={`w-24 h-24 rounded-2xl flex items-center justify-center text-3xl font-bold text-white mx-auto mb-4 transition-all duration-300
                       ${hasEmeraldTheme ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-gradient-to-br from-primary-400 to-accent-500'}
                       ${hasDiamondFrame ? 'border-4 border-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.7)]' : hasGoldFrame ? 'border-4 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)]' : 'shadow-lg shadow-black/20'}
-                      ${hasFlameAura ? 'ring-4 ring-orange-500/80 shadow-[0_0_40px_rgba(249,115,22,0.8)] animate-pulse' : ''}
+                      ${hasFlameAura ? 'ring-4 ring-orange-500/80 animate-flame-glow' : ''}
                     `}>
                       {viewingUser.display_name?.charAt(0).toUpperCase() ?? '?'}
                     </div>
@@ -359,7 +359,7 @@ export default function Leaderboard() {
                       return (
                         <div
                           key={badge.id}
-                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${unlocked ? 'bg-primary-500/15' : 'bg-coffee-800/40 opacity-50'}`}
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center transition-transform hover:scale-110 ${unlocked ? 'bg-primary-500/15' : 'bg-coffee-800/40 opacity-50'}`}
                           title={`${badge.name} (${badge.hours}h)`}
                         >
                           {unlocked ? <Icon size={18} className="text-primary-300" /> : <Lock size={14} className="text-coffee-600" />}
@@ -374,13 +374,13 @@ export default function Leaderboard() {
         </div>
       )}
 
-      {/* Create modal (unchanged) */}
+      {/* Create modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setShowCreate(false)}>
-          <div className="glass rounded-2xl p-6 w-full max-w-sm animate-slide-up" onClick={(e) => e.stopPropagation()}>
+          <div className="glass rounded-2xl p-6 w-full max-w-sm animate-modal-pop border border-white/10 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white">Create Squad</h3>
-              <button onClick={() => setShowCreate(false)} className="text-coffee-400 hover:text-white">
+              <button onClick={() => setShowCreate(false)} className="text-coffee-400 hover:text-white btn-press">
                 <X size={20} />
               </button>
             </div>
@@ -393,12 +393,12 @@ export default function Leaderboard() {
                   onChange={(e) => setNewGroupName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && createGroup()}
                   placeholder="Study Squad"
-                  className="w-full px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50"
+                  className="w-full px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/30 transition-all"
                 />
               </div>
               <button
                 onClick={createGroup}
-                className="w-full py-3 rounded-xl bg-[#f1d6b9] text-coffee-900 font-semibold hover:brightness-95 transition-all"
+                className="w-full py-3 rounded-xl bg-[#f1d6b9] text-coffee-900 font-semibold btn-press-primary"
               >
                 Create
               </button>

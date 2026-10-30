@@ -76,8 +76,8 @@ async function toggleTask(task: Task) {
   const completedTasks = tasks.filter((t) => t.done);
 
   return (
-    <div className="animate-fade-in">
-      <div className="flex items-center gap-3 mb-6">
+    <div>
+      <div className="flex items-center gap-3 mb-6 animate-enter-up stagger-1">
         <div className="w-11 h-11 rounded-xl bg-primary-500/10 flex items-center justify-center text-primary-300">
           <ListTodo size={22} />
         </div>
@@ -88,48 +88,51 @@ async function toggleTask(task: Task) {
       </div>
 
       {/* Input bar */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 animate-enter-up stagger-2">
         <input
           type="text"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && addTask()}
           placeholder="Add a task…"
-          className="flex-1 px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50 transition-all"
+          className="flex-1 px-4 py-3 rounded-xl bg-coffee-800/50 border border-white/5 text-white placeholder-coffee-500 focus:outline-none focus:border-primary-500/50 focus:ring-1 focus:ring-primary-500/30 transition-all"
         />
         <button
           onClick={addTask}
           disabled={loading || !newTitle.trim()}
-          className="px-4 rounded-xl bg-[#f1d6b9] text-coffee-900 flex items-center justify-center hover:brightness-95 active:scale-95 transition-all disabled:opacity-40"
+          className="px-4 rounded-xl bg-[#f1d6b9] text-coffee-900 flex items-center justify-center transition-all disabled:opacity-40 btn-press-primary"
         >
           <Plus size={22} />
         </button>
       </div>
 
       {/* Active tasks */}
-      <div className="mb-6">
+      <div className="mb-6 animate-enter-up stagger-3">
         <p className="text-xs font-semibold text-coffee-400 uppercase tracking-wider mb-3">
           Active · {activeTasks.length}
         </p>
         {activeTasks.length === 0 ? (
-          <div className="glass-card p-8 text-center">
+          <div className="glass-card p-8 text-center interactive-card">
             <p className="text-sm text-coffee-400">No active tasks. Add one above!</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {activeTasks.map((task) => (
+            {activeTasks.map((task, idx) => (
               <div
                 key={task.id}
-                className="glass-card px-4 py-3.5 flex items-center gap-3 group animate-slide-up hover:border-primary-500/20 transition-all"
+                className="glass-card px-4 py-3.5 flex items-center gap-3 group interactive-card animate-enter-up transition-all"
+                style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <button
                   onClick={() => toggleTask(task)}
-                  className="w-6 h-6 rounded-full border-2 border-coffee-600 hover:border-primary-400 transition-all flex items-center justify-center shrink-0"
+                  className="w-6 h-6 rounded-full border-2 border-coffee-600 hover:border-primary-400 transition-all flex items-center justify-center shrink-0 btn-press hover:bg-primary-500/10"
+                  title="Mark done"
                 />
                 <span className="flex-1 text-sm text-white">{task.title}</span>
                 <button
                   onClick={() => deleteTask(task)}
-                  className="text-coffee-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
+                  className="text-coffee-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 btn-press p-1 rounded-lg"
+                  title="Delete task"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -141,7 +144,7 @@ async function toggleTask(task: Task) {
 
       {/* Completed tasks */}
       {completedTasks.length > 0 && (
-        <div>
+        <div className="animate-enter-up stagger-4">
           <p className="text-xs font-semibold text-coffee-400 uppercase tracking-wider mb-3">
             Completed · {completedTasks.length}
           </p>
@@ -149,18 +152,20 @@ async function toggleTask(task: Task) {
             {completedTasks.map((task) => (
               <div
                 key={task.id}
-                className="glass-card px-4 py-3.5 flex items-center gap-3 group opacity-60"
+                className="glass-card px-4 py-3.5 flex items-center gap-3 group opacity-70 hover:opacity-95 interactive-card transition-all"
               >
                 <button
                   onClick={() => toggleTask(task)}
-                  className="w-6 h-6 rounded-full bg-[#f1d6b9] flex items-center justify-center shrink-0"
+                  className="w-6 h-6 rounded-full bg-[#f1d6b9] flex items-center justify-center shrink-0 check-pop btn-press"
+                  title="Mark incomplete"
                 >
                   <Check size={14} className="text-coffee-900" strokeWidth={3} />
                 </button>
-                <span className="flex-1 text-sm text-coffee-400 line-through">{task.title}</span>
+                <span className="flex-1 text-sm text-coffee-400 line-through transition-colors">{task.title}</span>
                 <button
                   onClick={() => deleteTask(task)}
-                  className="text-coffee-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all"
+                  className="text-coffee-600 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-all duration-200 btn-press p-1 rounded-lg"
+                  title="Delete task"
                 >
                   <Trash2 size={16} />
                 </button>

@@ -32,11 +32,11 @@ export default function PublicProfile() {
 
   if (!profile) {
     return (
-      <div className="animate-fade-in">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-coffee-400 hover:text-white mb-4">
+      <div className="animate-enter-up">
+        <button onClick={() => navigate(-1)} className="btn-press flex items-center gap-2 text-sm text-coffee-400 hover:text-white mb-4">
           <ArrowLeft size={18} /> Back
         </button>
-        <div className="glass-card p-8 text-center">
+        <div className="glass-card interactive-card p-8 text-center">
           <p className="text-sm text-coffee-400">User not found or has a private profile.</p>
         </div>
       </div>
@@ -47,17 +47,17 @@ export default function PublicProfile() {
   const perkIds = profile.perk_ids ?? [];
 
   return (
-    <div className="animate-fade-in">
-      <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-coffee-400 hover:text-white mb-4">
+    <div className="space-y-5 animate-enter-up">
+      <button onClick={() => navigate(-1)} className="btn-press inline-flex items-center gap-2 text-sm text-coffee-400 hover:text-white mb-1">
         <ArrowLeft size={18} /> Back
       </button>
 
       {/* Profile header */}
-      <div className="glass-card p-6 mb-5 text-center relative overflow-hidden">
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-accent-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl" />
+      <div className="glass-card interactive-card p-6 text-center relative overflow-hidden">
+        <div className="absolute -top-20 -left-20 w-40 h-40 bg-accent-500/10 rounded-full blur-3xl animate-breathe" />
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary-500/10 rounded-full blur-3xl animate-breathe" style={{ animationDelay: '1.5s' }} />
         <div className="relative">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-2xl font-bold text-white mx-auto mb-3 shadow-lg shadow-accent-500/20">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-accent-400 to-primary-500 flex items-center justify-center text-2xl font-bold text-white mx-auto mb-3 shadow-lg shadow-accent-500/20 transition-transform duration-300 hover:scale-105">
             {profile.display_name.charAt(0).toUpperCase()}
           </div>
           <h1 className="text-xl font-bold text-white flex items-center justify-center gap-2">
@@ -87,7 +87,7 @@ export default function PublicProfile() {
       </div>
 
       {/* Badges */}
-      <div className="glass-card p-5 mb-5">
+      <div className="glass-card interactive-card stagger-1 animate-enter-up p-5">
         <p className="text-sm font-semibold text-white mb-3">Badges</p>
         <div className="grid grid-cols-6 gap-2">
           {BADGES.map((badge) => {
@@ -96,7 +96,7 @@ export default function PublicProfile() {
             return (
               <div
                 key={badge.id}
-                className={`aspect-square rounded-xl flex items-center justify-center ${unlocked ? 'bg-primary-500/15' : 'bg-coffee-800/40'}`}
+                className={`aspect-square rounded-xl flex items-center justify-center transition-transform duration-200 hover:scale-110 active:scale-95 ${unlocked ? 'bg-primary-500/15' : 'bg-coffee-800/40'}`}
                 title={`${badge.name} (${badge.hours}h)`}
               >
                 {unlocked ? <Icon size={20} className="text-primary-300" /> : <Lock size={16} className="text-coffee-600" />}
@@ -107,7 +107,7 @@ export default function PublicProfile() {
       </div>
 
       {/* Perks */}
-      <div className="glass-card p-5">
+      <div className="glass-card interactive-card stagger-2 animate-enter-up p-5">
         <p className="text-sm font-semibold text-white mb-3">Unlocked Perks</p>
         {perkIds.length === 0 ? (
           <p className="text-sm text-coffee-400 py-4 text-center">No perks unlocked yet.</p>
@@ -117,7 +117,7 @@ export default function PublicProfile() {
               const perk = PERKS.find((p) => p.id === pid);
               if (!perk) return null;
               return (
-                <div key={pid} className="aspect-square rounded-xl bg-primary-500/10 flex items-center justify-center" title={perk.name}>
+                <div key={pid} className="aspect-square rounded-xl bg-primary-500/10 flex items-center justify-center transition-transform duration-200 hover:scale-110" title={perk.name}>
                   <Coins size={20} className="text-primary-300" />
                 </div>
               );

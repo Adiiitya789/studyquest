@@ -107,20 +107,20 @@ export default function Profile() {
   const hasCrystal = perks.includes('crystal_badge');
 
   return (
-    <div className="animate-fade-in">
+    <div>
       {/* Profile header */}
-      <div className={`glass-card p-6 mb-5 text-center relative overflow-hidden transition-all duration-500 ${hasDarkMode ? 'bg-coffee-950/90 border-white/5' : ''}`}>
+      <div className={`glass-card p-6 mb-5 text-center relative overflow-hidden transition-all duration-500 interactive-card animate-enter-up stagger-1 ${hasDarkMode ? 'bg-coffee-950/90 border-white/5' : ''}`}>
         
         {/* Dynamic Background Glows */}
-        <div className={`absolute -top-20 -left-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-emerald-500/20' : 'bg-primary-500/10'}`} />
-        <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-teal-500/20' : 'bg-accent-500/10'}`} />
+        <div className={`absolute -top-20 -left-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-emerald-500/20' : 'bg-primary-500/10'} animate-breathe`} />
+        <div className={`absolute -bottom-20 -right-20 w-40 h-40 rounded-full blur-3xl ${hasEmeraldTheme ? 'bg-teal-500/20' : 'bg-accent-500/10'} animate-breathe`} />
         
         <div className="relative">
           {/* Dynamic Avatar styling */}
           <div className={`w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold text-white mx-auto mb-3 transition-all duration-500
             ${hasEmeraldTheme ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-gradient-to-br from-primary-400 to-accent-500'}
             ${hasDiamondFrame ? 'border-4 border-cyan-300 shadow-[0_0_25px_rgba(34,211,238,0.7)]' : hasGoldFrame ? 'border-4 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.5)]' : 'shadow-lg shadow-black/20'}
-            ${hasFlameAura ? 'ring-4 ring-orange-500/80 shadow-[0_0_40px_rgba(249,115,22,0.8)] animate-pulse' : ''}
+            ${hasFlameAura ? 'ring-4 ring-orange-500/80 animate-flame-glow' : ''}
           `}>
             {profile?.display_name?.charAt(0).toUpperCase() ?? '?'}
           </div>
@@ -142,19 +142,19 @@ export default function Profile() {
 
           {/* Stats */}
           <div className="grid grid-cols-4 gap-2 mt-5">
-            <div>
+            <div className="p-2 rounded-xl bg-white/[0.02]">
               <p className="text-lg font-bold text-white tabular-nums">{totalHours.toFixed(1)}</p>
               <p className="text-[10px] text-coffee-400">Hours</p>
             </div>
-            <div>
+            <div className="p-2 rounded-xl bg-white/[0.02]">
               <p className="text-lg font-bold text-white tabular-nums">{streak}</p>
               <p className="text-[10px] text-coffee-400">Streak</p>
             </div>
-            <div>
+            <div className="p-2 rounded-xl bg-white/[0.02]">
               <p className="text-lg font-bold text-white tabular-nums">{tasksDone}</p>
               <p className="text-[10px] text-coffee-400">Tasks</p>
             </div>
-            <div>
+            <div className="p-2 rounded-xl bg-white/[0.02]">
               <p className="text-lg font-bold text-amber-300 tabular-nums">{profile?.coins ?? 0}</p>
               <p className="text-[10px] text-coffee-400">Coins</p>
             </div>
@@ -163,7 +163,7 @@ export default function Profile() {
       </div>
 
       {/* Settings */}
-      <div className="glass-card p-4 mb-5">
+      <div className="glass-card p-4 mb-5 interactive-card animate-enter-up stagger-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {profile?.show_on_leaderboard ? <Eye size={18} className="text-primary-300" /> : <EyeOff size={18} className="text-coffee-500" />}
@@ -174,15 +174,15 @@ export default function Profile() {
           </div>
           <button
             onClick={toggleLeaderboard}
-            className={`w-11 h-6 rounded-full transition-all relative ${profile?.show_on_leaderboard ? 'bg-primary-500' : 'bg-coffee-700'}`}
+            className={`w-11 h-6 rounded-full transition-all duration-300 relative btn-press ${profile?.show_on_leaderboard ? 'bg-primary-500 shadow-sm' : 'bg-coffee-700'}`}
           >
-            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all ${profile?.show_on_leaderboard ? 'left-5' : 'left-0.5'}`} />
+            <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all duration-300 shadow-md ${profile?.show_on_leaderboard ? 'left-5' : 'left-0.5'}`} />
           </button>
         </div>
       </div>
 
       {/* Badges */}
-      <div className="glass-card p-5 mb-5">
+      <div className="glass-card p-5 mb-5 interactive-card animate-enter-up stagger-3">
         <p className="text-sm font-semibold text-white mb-3">Badges Earned</p>
         <div className="flex flex-wrap gap-2">
           {BADGES.map((badge) => {
@@ -191,7 +191,7 @@ export default function Profile() {
             return (
               <div
                 key={badge.id}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${unlocked ? 'bg-primary-500/15' : 'bg-coffee-800/40'}`}
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 ${unlocked ? 'bg-primary-500/15 shadow-sm' : 'bg-coffee-800/40 opacity-50'}`}
                 title={`${badge.name} (${badge.hours}h)`}
               >
                 {unlocked ? <Icon size={20} className="text-primary-300" /> : <Lock size={18} className="text-coffee-600" />}
@@ -202,10 +202,10 @@ export default function Profile() {
       </div>
 
       {/* Perks Shop */}
-      <div className="mb-4">
+      <div className="mb-4 animate-enter-up stagger-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold text-white">Perks Shop</p>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
             <Coins size={14} className="text-amber-400" />
             <span className="text-xs font-semibold text-amber-300">{profile?.coins ?? 0}</span>
           </div>
@@ -217,11 +217,11 @@ export default function Profile() {
             return (
               <div
                 key={perk.id}
-                className={`glass-card p-4 text-center transition-all ${owned ? 'border-primary-500/30 bg-primary-500/5' : ''}`}
+                className={`glass-card p-4 text-center interactive-card transition-all ${owned ? 'border-primary-500/30 bg-primary-500/5' : ''}`}
               >
-                <div className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 ${owned ? 'bg-primary-500/15' : 'bg-coffee-800/50'}`}>
+                <div className={`w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 transition-transform hover:scale-105 ${owned ? 'bg-primary-500/15' : 'bg-coffee-800/50'}`}>
                   {owned ? (
-                    <Check size={22} className="text-primary-300" />
+                    <Check size={22} className="text-primary-300 check-pop" />
                   ) : (
                     <Lock size={20} className="text-coffee-500" />
                   )}
@@ -238,7 +238,7 @@ export default function Profile() {
                     disabled={!canAfford || buying === perk.id}
                     className={`w-full py-2 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 ${
                       canAfford
-                        ? 'bg-[#f1d6b9] text-coffee-900 hover:scale-105 active:scale-95'
+                        ? 'bg-[#f1d6b9] text-coffee-900 btn-press-primary'
                         : 'bg-coffee-800/50 text-coffee-500'
                     } disabled:opacity-50`}
                   >
@@ -254,7 +254,7 @@ export default function Profile() {
       {/* Sign out */}
       <button
         onClick={signOut}
-        className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 font-medium flex items-center justify-center gap-2 hover:bg-rose-500/20 transition-all"
+        className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 font-medium flex items-center justify-center gap-2 hover:bg-rose-500/20 transition-all btn-press animate-enter-up stagger-5"
       >
         <LogOut size={18} /> Sign Out
       </button>

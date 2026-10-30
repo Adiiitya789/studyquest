@@ -56,13 +56,15 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-coffee-950 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none">
+        <div className="w-[600px] h-[600px] bg-primary-500/10 rounded-full blur-[120px] animate-breathe" />
+      </div>
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-accent-500/10 rounded-full blur-[100px] pointer-events-none animate-breathe" style={{ animationDelay: '2s' }} />
 
-      <div className="relative w-full max-w-md animate-slide-up">
+      <div className="relative w-full max-w-md animate-enter-up">
         {/* Logo (Minimalist) */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center mb-4 shadow-lg shadow-primary-500/20">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-400 to-accent-500 flex items-center justify-center mb-4 shadow-lg shadow-primary-500/20 transition-transform duration-300 hover:scale-105">
             <BookOpen size={32} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">StudyQuest</h1>
@@ -73,16 +75,16 @@ export default function Login() {
           <div className="flex p-1 bg-coffee-800/50 rounded-xl mb-6">
             <button
               onClick={() => { setMode('login'); setError(''); setMessage(''); }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                mode === 'login' ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20' : 'text-coffee-400'
+              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 btn-press ${
+                mode === 'login' ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20' : 'text-coffee-400 hover:text-white'
               }`}
             >
               Sign In
             </button>
             <button
               onClick={() => { setMode('signup'); setError(''); setMessage(''); }}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-                mode === 'signup' ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20' : 'text-coffee-400'
+              className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 btn-press ${
+                mode === 'signup' ? 'bg-[#f1d6b9] text-coffee-900 shadow-lg shadow-black/20' : 'text-coffee-400 hover:text-white'
               }`}
             >
               Create Account
@@ -93,7 +95,7 @@ export default function Login() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white text-coffee-900 font-bold hover:bg-coffee-100 transition-all active:scale-[0.98] mb-6"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white text-coffee-900 font-bold hover:bg-coffee-100 transition-all duration-200 btn-press mb-6"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -115,7 +117,7 @@ export default function Login() {
           {/* Original Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
-              <div>
+              <div className="animate-enter-up">
                 <label className="text-xs font-medium text-coffee-400 mb-1.5 block">First Name</label>
                 <input
                   type="text"
@@ -178,14 +180,14 @@ export default function Login() {
 
             {/* Error Message Box */}
             {error && (
-              <div className="px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm animate-fade-in">
+              <div className="px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm animate-enter-scale">
                 {error}
               </div>
             )}
 
             {/* Success Message Box with Spam Warning */}
             {message && (
-              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm animate-fade-in text-center space-y-1.5">
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm animate-enter-scale text-center space-y-1.5">
                 <p className="text-emerald-300 font-semibold">{message}</p>
                 <p className="text-xs text-coffee-300">
                   ⚠️ Don't see it? Be sure to check your <span className="text-white font-medium underline">Spam / Junk</span> folder!
@@ -196,7 +198,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 rounded-xl bg-[#f1d6b9] text-coffee-900 font-semibold shadow-lg shadow-black/20 hover:brightness-95 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:hover:scale-100"
+              className="w-full py-3.5 rounded-xl bg-[#f1d6b9] text-coffee-900 font-semibold shadow-lg shadow-black/20 hover:brightness-95 btn-press-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>
